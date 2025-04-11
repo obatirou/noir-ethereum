@@ -1,18 +1,17 @@
 {
-  "name": "@zkpersona/noir-library-starter",
-  "version": "0.1.0",
-  "description": "Template for building Noir libraries.",
+  "name": "@zkpersona/noir-ethereum",
+  "version": "0.0.0",
+  "description": "Prove and verify historical events on Ethereum",
   "keywords": [
     "noir",
     "noir-lang",
-    "noir-library",
-    "zkp",
-    "zero-knowledge-proofs",
-    "zk",
-    "aztec",
     "ethereum",
-    "cryptography",
-    "privacy"
+    "rlp",
+    "merkle-patricia-tree",
+    "merkle-patricia-proofs",
+    "merkle-proof",
+    "zero-knowledge",
+    "aztec"
   ],
   "license": "MIT",
   "author": {
