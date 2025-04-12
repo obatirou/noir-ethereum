@@ -2,8 +2,8 @@ use super::helpers::read_u64_be;
 use std::wrapping_sub;
 
 use crate::helpers::if_else;
+use crate::rlp::{fragment::RlpFragment, header::RlpHeader, list::RlpList};
 use crate::types::fragment::Fragment;
-use crate::types::rlp::{fragment::RlpFragment, header::RlpHeader, list::RlpList};
 
 pub fn decode_to_rlp_header<let N: u32>(data: Fragment<u8, N>) -> RlpHeader {
     let mut data = data;
