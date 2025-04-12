@@ -72,7 +72,27 @@ pub fn decode_to_rlp_header<let N: u32>(data: Fragment<u8, N>) -> RlpHeader {
         ),
     );
 
-    // Calculate the length of the length field
+    // Calculate the length of the length field (lenlen)
+    // This determines how many bytes are used to encode the length of the RLP data
+    //
+    // For RLP encoding:
+    // - Short strings/lists (<=55 bytes): length encoded in single byte
+    // - Long strings/lists (>55 bytes): length encoded in multiple bytes
+    //
+    // The calculation handles two cases:
+    // 1. Long String Case (first part):
+    //    - is_long_string: checks if first byte >= 0xb8
+    //    - (1 - is_small_string): ensures it's not a short string
+    //    - wrapping_sub(first_byte, 0xb7): calculates bytes used for length
+    //
+    // 2. Long List Case (second part):
+    //    - (1 - is_list): ensures it's not a short list
+    //    - wrapping_sub(first_byte, 0xf7): calculates bytes used for length
+    //
+    // Example: For a string with length 1000 encoded as [0xb9, 0x03, 0xe8, ...]
+    // - 0xb9 indicates long string
+    // - 0x03, 0xe8 is length (1000 in big-endian)
+    // - lenlen would be 2 (bytes used for length)
     let lenlen = is_long_string as u64
         * (1 - is_small_string as u64)
         * wrapping_sub(first_byte, 0xb7) as u64

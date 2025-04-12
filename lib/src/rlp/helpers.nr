@@ -5,7 +5,8 @@
 
 use crate::types::fragment::Fragment;
 
-/// Maximum number of bytes allowed for length encoding
+/// Maximum number of bytes required to represent length of a  list
+/// This means a list will have max length of 2^16 - 1 elements
 global MAX_LEN_IN_BYTES: u64 = 2;
 
 /// Decodes the length of an RLP-encoded list when the first byte is > 0xf7.
