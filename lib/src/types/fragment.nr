@@ -24,7 +24,7 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         Self::new(0, MaxLen as u64, vec.storage())
     }
 
-    pub fn extend_from_array<let N: u32>(mut self, array: [T; N]) -> Self {
+    pub fn extend_from_array<let N: u32>(&mut self, array: [T; N]) -> Self {
         let new_length = self.length + array.len() as u64;
         assert(new_length <= MaxLen as u64, "Extended length exceeds maximum fragment length");
 
@@ -32,10 +32,10 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
             self.data[self.end() as u32 + i] = array[i];
         }
         self.length = new_length;
-        self
+        *self
     }
 
-    pub fn extend_from_bounded_vec<let N: u32>(mut self, vec: BoundedVec<T, N>) -> Self {
+    pub fn extend_from_bounded_vec<let N: u32>(&mut self, vec: BoundedVec<T, N>) -> Self {
         let new_length = self.length + vec.len() as u64;
         assert(new_length <= MaxLen as u64, "Extended length exceeds maximum fragment length");
 
@@ -43,7 +43,7 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
             self.data[self.end() as u32 + i] = vec.get(i);
         }
         self.length = new_length;
-        self
+        *self
     }
 
     pub fn len(self) -> u64 {
@@ -58,7 +58,7 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         self.length == 0
     }
 
-    pub fn pop_front(mut self) -> T {
+    pub fn pop_front(&mut self) -> T {
         assert(self.length > 0, "Fragment is empty");
         self.offset += 1;
         self.length -= 1;
@@ -137,14 +137,14 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         self.data[self.end() - 1]
     }
 
-    pub fn push_back(mut self, value: T) -> Self {
+    pub fn push_back(&mut self, value: T) -> Self {
         assert(self.end() < self.data.len() as u64, "Fragment is full");
         self.data[self.end()] = value;
         self.length += 1;
-        self
+        *self
     }
 
-    pub fn pop_back(mut self) -> T {
+    pub fn pop_back(&mut self) -> T {
         assert(!self.is_empty(), "Fragment is empty");
         self.length -= 1;
         self.data[self.end()]
