@@ -27,25 +27,15 @@ pub fn get_list_len<let N: u32>(data: Fragment<u8, N>, lenlen: u64) -> u64 {
     // Ensure length encoding doesn't exceed maximum allowed bytes
     assert(lenlen <= MAX_LEN_IN_BYTES, "Length of length exceeds maximum");
 
-    let mut payload_len = 0;
+    let mut payload_length = 0;
 
-    // Calculate loop length based on whether MAX_LEN_IN_BYTES is less than N-1
-    let loop_len_index = (MAX_LEN_IN_BYTES < (N as u64 - 1)) as u64;
-    let loop_len = (
-        loop_len_index as Field * (MAX_LEN_IN_BYTES as Field - (N - 1) as Field) as Field
-            + N as Field
-            - 1
-    ) as u64;
-
-    // Process each byte to build the length value
-    for i in 0..loop_len {
-        // Only process bytes that are part of the length encoding
-        let len_len_ind = (((i as u32) < (lenlen as u32)) as u64);
-        payload_len = len_len_ind * (256 * payload_len + (data.at(i) as u64))
-            + (1 - len_len_ind) * payload_len;
+    for i in 0..MAX_LEN_IN_BYTES {
+        if (i < lenlen & i < data.len()) {
+            payload_length = data.at(i) as u64 + payload_length * 256;
+        }
     }
 
-    payload_len
+    payload_length
 }
 
 mod tests {

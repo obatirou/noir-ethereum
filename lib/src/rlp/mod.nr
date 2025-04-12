@@ -6,3 +6,5 @@ pub mod helpers;
 pub mod constants;
 
 pub mod decode;
+
+mod benchmarks;

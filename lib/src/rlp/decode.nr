@@ -306,15 +306,6 @@ mod tests {
         assert(third.offset() == 12); // Points to 'h' after length byte
     }
 
-    // #[test]
-    // fn test_decode_mixed_list() {
-    //     let data = Fragment::from_array([0xc5, 0x82, 0x01, 0x02, 0xc2, 0x03, 0x04]);
-    //     let list: RlpList<10> = decode_list(data);
-    //     assert(list.len() == 2);
-    //     assert(list.get(0).is_string());
-    //     assert(list.get(1).is_list());
-    // }
-
     #[test]
     fn test_decode_empty_list() {
         let data = Fragment::from_array([0xc0]);
@@ -346,12 +337,24 @@ mod tests {
     }
 
     #[test]
-    fn test_decode_max_length() {
+    fn test_decode_max_length_string() {
         let mut data = [0x42; 0xffff + 3];
         data[0] = 0xb7 + 2;
         data[1] = 0xff;
         data[2] = 0xff;
         let header = decode_to_rlp_header(Fragment::from_array(data));
         assert(header.len() == 0xffff);
+    }
+
+    #[test]
+    fn test_decode_max_length_list() {
+        // Test case: List with maximum length (0xffff)
+        let mut data: [u8; 65538] = [0x42; 0xffff + 3];
+        data[0] = 0xf7 + 2; // Long list prefix with 2 length bytes
+        data[1] = 0xff; // First length byte
+        data[2] = 0xff; // Second length byte
+        let header = decode_to_rlp_header(Fragment::from_array(data));
+        assert(header.len() == 0xffff);
+        assert(header.is_list());
     }
 }
