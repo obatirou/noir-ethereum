@@ -16,6 +16,36 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         Self { offset, length, data }
     }
 
+    pub fn from_array(data: [T; MaxLen]) -> Self {
+        Self::new(0, data.len() as u64, data)
+    }
+
+    pub fn from_bounded_vec(vec: BoundedVec<T, MaxLen>) -> Self {
+        Self::new(0, MaxLen as u64, vec.storage())
+    }
+
+    pub fn extend_from_array<let N: u32>(mut self, array: [T; N]) -> Self {
+        let new_length = self.length + array.len() as u64;
+        assert(new_length <= MaxLen as u64, "Extended length exceeds maximum fragment length");
+
+        for i in 0..N {
+            self.data[self.end() as u32 + i] = array[i];
+        }
+        self.length = new_length;
+        self
+    }
+
+    pub fn extend_from_bounded_vec<let N: u32>(mut self, vec: BoundedVec<T, N>) -> Self {
+        let new_length = self.length + vec.len() as u64;
+        assert(new_length <= MaxLen as u64, "Extended length exceeds maximum fragment length");
+
+        for i in 0..vec.len() {
+            self.data[self.end() as u32 + i] = vec.get(i);
+        }
+        self.length = new_length;
+        self
+    }
+
     pub fn len(self) -> u64 {
         self.length
     }
