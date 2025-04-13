@@ -133,16 +133,65 @@ pub fn verify_merkle_proof<let MaxKeyNibbleLen: u32, let MaxValueLen: u32, let M
 }
 
 mod verify_merkle_tree_tests {
-    use crate::fixtures::mpt::leaf_large::{key, proof_input, root, value};
-    use crate::fixtures::mpt::leaf_small::{key as k, proof_input as input, root as r, value as v};
+    use super::verify_merkle_proof;
 
-    #[test]
-    fn test_verify_merkle_proof_small() {
-        assert(super::verify_merkle_proof(key, value, root, proof_input.proof()));
-    }
+    use crate::fixtures::mpt::leaf_large::{
+        key as leaf_large_key, proof_input as leaf_large_input, root as leaf_large_root,
+        value as leaf_large_value,
+    };
+
+    use crate::fixtures::mpt::leaf_small::{
+        key as leaf_small_key, proof_input as leaf_small_input, root as leaf_small_root,
+        value as leaf_small_value,
+    };
+
+    use crate::fixtures::mpt::extension_even::{
+        key as extension_even_key, proof_input as extension_even_input, root as extension_even_root,
+        value as extension_even_value,
+    };
+
+    use crate::fixtures::mpt::extension_odd::{
+        key as extension_odd_key, proof_input as extension_odd_input, root as extension_odd_root,
+        value as extension_odd_value,
+    };
 
     #[test]
     fn test_verify_merkle_proof_large() {
-        assert(super::verify_merkle_proof(k, v, r, input.proof()));
+        assert(verify_merkle_proof(
+            leaf_large_key,
+            leaf_large_value,
+            leaf_large_root,
+            leaf_large_input.proof(),
+        ));
+    }
+
+    #[test]
+    fn test_verify_merkle_proof_small() {
+        assert(verify_merkle_proof(
+            leaf_small_key,
+            leaf_small_value,
+            leaf_small_root,
+            leaf_small_input.proof(),
+        ));
+    }
+
+    #[test]
+    fn test_verify_merkle_proof_extension_even() {
+        assert(verify_merkle_proof(
+            extension_even_key,
+            extension_even_value,
+            extension_even_root,
+            extension_even_input.proof(),
+        ));
+    }
+
+    #[test]
+    fn test_verify_merkle_proof_extension_odd() {
+        assert(verify_merkle_proof(
+            extension_odd_key,
+            extension_odd_value,
+            extension_odd_root,
+            extension_odd_input.proof(),
+        ));
     }
 }

@@ -339,7 +339,7 @@ mod extract_hash_from_branch_node {
     fn test_branch_node() {
         let branch_node: [u8; 532] = proof_input.proof().nodes()[0];
         let branch_node_rlp_list = decode_list_of_small_strings(Fragment::from_array(branch_node));
-        let key_nibbles = bytes_to_nibbles(Fragment::new(6, 4, key));
+        let key_nibbles = bytes_to_nibbles(Fragment::new(3, 1, key));
         let mut key_ptr = 1;
         let extracted = extract_hash_from_branch_node(
             branch_node,
@@ -347,9 +347,10 @@ mod extract_hash_from_branch_node {
             key_nibbles,
             &mut key_ptr,
         );
-        let expected = [
-            174, 243, 19, 251, 67, 67, 224, 151, 172, 103, 53, 94, 5, 31, 103, 77, 197, 144, 145,
-            186, 99, 204, 56, 106, 195, 149, 217, 233, 184, 65, 180, 8,
+        let expected: [u8; 32] = [
+            0x4d, 0xc9, 0x94, 0xb1, 0xa8, 0x44, 0x39, 0x4a, 0x1d, 0xa2, 0xae, 0x94, 0x88, 0x47,
+            0x6b, 0xa8, 0xdb, 0x91, 0xf0, 0x90, 0x22, 0x5d, 0x87, 0x4b, 0x9e, 0xcb, 0x9c, 0x81,
+            0xfe, 0x33, 0xc0, 0x19,
         ];
         assert(extracted.data() == expected, "Incorrect hash extracted");
         assert(key_ptr == 2, "Key pointer didn't advance correctly");
