@@ -217,6 +217,44 @@ pub fn decode_list<let N: u32, let MaxFields: u32>(data: Fragment<u8, N>) -> Rlp
     rlp_list
 }
 
+pub fn get_small_string_offset_and_length(first_byte: u8) -> (u64, u64) {
+    assert(first_byte < 0xb8, "Element is not a string of length < 56 bytes");
+
+    if (first_byte < 0x80) {
+        (0, 1)
+    } else {
+        (1, wrapping_sub(first_byte as u64, 0x80))
+    }
+}
+
+pub fn decode_list_of_small_strings<let N: u32, let NumFields: u32>(
+    data: Fragment<u8, N>,
+) -> RlpList<NumFields> {
+    let mut rlp_list: RlpList<NumFields> = BoundedVec::new();
+
+    let header = decode_to_rlp_header(data);
+    assert(header.is_list(), "Expected a list");
+
+    let total_len = header.len() + header.offset();
+    assert(total_len <= data.len(), "Total length exceeds input length");
+
+    let mut current_offset = header.offset();
+    for _ in 0..NumFields {
+        if (current_offset < total_len) {
+            let first_byte = data.at(current_offset);
+
+            let (field_offset, field_len) = get_small_string_offset_and_length(first_byte);
+
+            rlp_list.push(RlpFragment::new(current_offset + field_offset, field_len, String));
+
+            current_offset += field_offset + field_len;
+        }
+    }
+    assert(current_offset == total_len, "Inconsistent rlp length");
+
+    rlp_list
+}
+
 mod tests {
     use crate::rlp::list::RlpList;
     use crate::types::fragment::Fragment;

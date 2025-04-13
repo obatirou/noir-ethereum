@@ -17,3 +17,7 @@ pub fn if_else(condition: bool, x: Field, y: Field) -> Field {
     let condition_f = condition as Field;
     condition_f * x + (1 - condition_f) * y
 }
+
+pub mod bytes;
+pub mod iterator;
+pub mod arrays;
