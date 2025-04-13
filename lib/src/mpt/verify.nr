@@ -131,3 +131,18 @@ pub fn verify_merkle_proof<let MaxKeyNibbleLen: u32, let MaxValueLen: u32, let M
     // Both hash chain and leaf contents must be valid
     node_hash_verified & leaf_verified
 }
+
+mod verify_merkle_tree_tests {
+    use crate::fixtures::mpt::leaf_large::{key, proof_input, root, value};
+    use crate::fixtures::mpt::leaf_small::{key as k, proof_input as input, root as r, value as v};
+
+    #[test]
+    fn test_verify_merkle_proof_small() {
+        assert(super::verify_merkle_proof(key, value, root, proof_input.proof()));
+    }
+
+    #[test]
+    fn test_verify_merkle_proof_large() {
+        assert(super::verify_merkle_proof(k, v, r, input.proof()));
+    }
+}

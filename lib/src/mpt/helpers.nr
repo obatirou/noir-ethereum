@@ -327,3 +327,82 @@ mod extract_hash {
         let _ = extract_hash(invalid_node, key_nibbles, &mut key_ptr);
     }
 }
+
+mod extract_hash_from_branch_node {
+    use crate::fixtures::mpt::branch_then_leaf::{key, proof_input};
+    use crate::helpers::bytes::bytes_to_nibbles;
+    use crate::rlp::decode::decode_list_of_small_strings;
+    use crate::types::fragment::Fragment;
+    use super::extract_hash_from_branch_node;
+
+    #[test]
+    fn test_branch_node() {
+        let branch_node: [u8; 532] = proof_input.proof().nodes()[0];
+        let branch_node_rlp_list = decode_list_of_small_strings(Fragment::from_array(branch_node));
+        let key_nibbles = bytes_to_nibbles(Fragment::new(6, 4, key));
+        let mut key_ptr = 1;
+        let extracted = extract_hash_from_branch_node(
+            branch_node,
+            branch_node_rlp_list,
+            key_nibbles,
+            &mut key_ptr,
+        );
+        let expected = [
+            174, 243, 19, 251, 67, 67, 224, 151, 172, 103, 53, 94, 5, 31, 103, 77, 197, 144, 145,
+            186, 99, 204, 56, 106, 195, 149, 217, 233, 184, 65, 180, 8,
+        ];
+        assert(extracted.data() == expected, "Incorrect hash extracted");
+        assert(key_ptr == 2, "Key pointer didn't advance correctly");
+    }
+
+}
+
+mod extract_hash_from_extension_node {
+    use crate::fixtures::mpt::extension_even::{key as even_key, proof_input as even_proof_input};
+    use crate::fixtures::mpt::extension_odd::{key as odd_key, proof_input as odd_proof_input};
+    use crate::helpers::bytes::bytes_to_nibbles;
+    use crate::rlp::decode::decode_list_of_small_strings;
+    use crate::types::fragment::Fragment;
+    use super::extract_hash_from_branch_node;
+
+    global expected: [u8; 32] = [
+        0x60, 0xc1, 0xdf, 0x16, 0xda, 0x26, 0x84, 0x73, 0xae, 0xe6, 0xb0, 0x02, 0xca, 0xe7, 0x9c,
+        0xf9, 0x10, 0xd1, 0xfa, 0x0b, 0xc8, 0xc0, 0x66, 0x9a, 0xfa, 0x63, 0x1b, 0xae, 0xd0, 0xeb,
+        0x6f, 0x52,
+    ];
+
+    #[test]
+    fn test_extension_odd() {
+        let branch_node: [u8; 532] = odd_proof_input.proof().nodes()[0];
+        let branch_node_rlp_list = decode_list_of_small_strings(Fragment::from_array(branch_node));
+        let key_nibbles = bytes_to_nibbles(Fragment::new(4, 2, odd_key));
+        let mut key_ptr = 0;
+        let extracted = extract_hash_from_branch_node(
+            branch_node,
+            branch_node_rlp_list,
+            key_nibbles,
+            &mut key_ptr,
+        );
+
+        assert(extracted.data() == expected, "Incorrect hash extracted");
+        assert(key_ptr == 1, "Key pointer didn't advance correctly");
+    }
+
+    #[test]
+    fn test_extension_even() {
+        let branch_node: [u8; 532] = even_proof_input.proof().nodes()[1];
+        let branch_node_rlp_list = decode_list_of_small_strings(Fragment::from_array(branch_node));
+        let key_nibbles = bytes_to_nibbles(Fragment::new(5, 3, even_key));
+        let mut key_ptr = 1;
+        let extracted = extract_hash_from_branch_node(
+            branch_node,
+            branch_node_rlp_list,
+            key_nibbles,
+            &mut key_ptr,
+        );
+
+        assert(extracted.data() == expected, "Incorrect hash extracted");
+        assert(key_ptr == 2, "Key pointer didn't advance correctly");
+    }
+
+}
