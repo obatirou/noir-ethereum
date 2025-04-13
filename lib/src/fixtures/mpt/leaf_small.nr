@@ -19,5 +19,5 @@ pub global leaf: Leaf<22> = [
     0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65,
 ];
 
-global _proof: Proof<0, 22> = Proof::new([], leaf, 1);
-pub global proof_input: ProofInput<20, 10, 0, 22> = ProofInput::new(key, value, _proof);
+global proof: Proof<0, 22> = Proof::new([], leaf, 1);
+pub global proof_input: ProofInput<20, 10, 0, 22> = ProofInput::new(key, value, proof);

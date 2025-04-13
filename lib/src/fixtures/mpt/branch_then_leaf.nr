@@ -13,7 +13,7 @@ pub global key: Key<4> = [0x0, 0x0, 0x0, 0x61];
 pub global value: Value<6> = [0x76, 0x61, 0x6c, 0x75, 0x65, 0x31];
 pub global leaf: Leaf<9> = [0xc8, 0x20, 0x86, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x31];
 
-global _proof: Proof<2, 9> = Proof::new(
+global proof: Proof<2, 9> = Proof::new(
     [
         [
             0xe2, 0x16, 0xa0, 0x4d, 0xc9, 0x94, 0xb1, 0xa8, 0x44, 0x39, 0x4a, 0x1d, 0xa2, 0xae,
@@ -87,4 +87,4 @@ global _proof: Proof<2, 9> = Proof::new(
     leaf,
     3,
 );
-pub global proof_input: ProofInput<4, 6, 2, 9> = ProofInput::new(key, value, _proof);
+pub global proof_input: ProofInput<4, 6, 2, 9> = ProofInput::new(key, value, proof);
