@@ -1,0 +1,6 @@
+use crate::mpt::proof::ProofInput;
+
+use crate::account::constants::MAX_PREFIXED_KEY_NIBBLE_LENGTH;
+use super::constants::{MAX_STORAGE_DEPTH, MAX_STORAGE_LEAF_LENGTH, MAX_STORAGE_VALUE_LENGTH};
+
+pub type StorageProof = ProofInput<MAX_PREFIXED_KEY_NIBBLE_LENGTH, MAX_STORAGE_VALUE_LENGTH, MAX_STORAGE_DEPTH, MAX_STORAGE_LEAF_LENGTH>;
