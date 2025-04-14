@@ -139,6 +139,11 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         self.data
     }
 
+    /// Returns the offset of the fragment.
+    pub fn offset(self) -> u64 {
+        self.offset
+    }
+
     /// Creates an empty fragment with zeroed data.
     pub fn empty() -> Self {
         Self { offset: 0, length: 0, data: zeroed() }

@@ -12,8 +12,8 @@ importers:
         specifier: ^1.0.0-beta.3
         version: 1.0.0-beta.3
       '@zkpersona/noir-helpers':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -56,7 +56,7 @@ importers:
         version: 5.7.3
       viem:
         specifier: ^2.26.4
-        version: 2.26.4(typescript@5.7.3)
+        version: 2.26.4(typescript@5.7.3)(zod@3.24.2)
       vitest:
         specifier: ^3.0.4
         version: 3.0.4(@types/node@22.10.10)
@@ -792,8 +792,8 @@ packages:
   '@vitest/utils@3.0.4':
     resolution: {integrity: sha512-8BqC1ksYsHtbWH+DfpOAKrFw3jl3Uf9J7yeFh85Pz52IWuh1hBBtyfEbRNNZNjl8H8A5yMLH9/t+k7HIKzQcZQ==}
 
-  '@zkpersona/noir-helpers@0.1.0':
-    resolution: {integrity: sha512-qa6awhTHzbXSqZ4RlvPtW74F9K5H8hFU2cfGVhvBjD5j9JJ0+ZusayedbPN7ZAKevgjI/W7o4DF8BK60iMmc6g==}
+  '@zkpersona/noir-helpers@0.2.0':
+    resolution: {integrity: sha512-gHqtxivfi+mvL1RLtFb9WLXJw/Etm7BM0jUhPAVIh9ItFq36lkYnVhKEnio2m3N57iVOXXaZ0Fkxovj9tID1lA==}
 
   JSONStream@1.3.5:
     resolution: {integrity: sha512-E+iruNOY8VV9s4JEbe1aNEm6MiszPRr/UfcHMz0TQh1BXSxHK+ASV1R6W4HpjBhSeS+54PIsAMCBmwD06LLsqQ==}
@@ -2005,6 +2005,9 @@ packages:
     resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
     engines: {node: '>=12.20'}
 
+  zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+
 snapshots:
 
   '@adraffy/ens-normalize@1.11.0': {}
@@ -2711,11 +2714,12 @@ snapshots:
       loupe: 3.1.2
       tinyrainbow: 2.0.0
 
-  '@zkpersona/noir-helpers@0.1.0':
+  '@zkpersona/noir-helpers@0.2.0':
     dependencies:
       '@aztec/bb.js': 0.84.0
       '@noir-lang/noir_js': 1.0.0-beta.3
       json2toml: 6.1.1
+      zod: 3.24.2
     transitivePeerDependencies:
       - supports-color
 
@@ -2724,9 +2728,10 @@ snapshots:
       jsonparse: 1.3.1
       through: 2.3.8
 
-  abitype@1.0.8(typescript@5.7.3):
+  abitype@1.0.8(typescript@5.7.3)(zod@3.24.2):
     optionalDependencies:
       typescript: 5.7.3
+      zod: 3.24.2
 
   ajv@8.17.1:
     dependencies:
@@ -3345,14 +3350,14 @@ snapshots:
 
   outdent@0.5.0: {}
 
-  ox@0.6.9(typescript@5.7.3):
+  ox@0.6.9(typescript@5.7.3)(zod@3.24.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.7.3)
+      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.2)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.7.3
@@ -3697,15 +3702,15 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  viem@2.26.4(typescript@5.7.3):
+  viem@2.26.4(typescript@5.7.3)(zod@3.24.2):
     dependencies:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.7.3)
+      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.2)
       isows: 1.0.6(ws@8.18.1)
-      ox: 0.6.9(typescript@5.7.3)
+      ox: 0.6.9(typescript@5.7.3)(zod@3.24.2)
       ws: 8.18.1
     optionalDependencies:
       typescript: 5.7.3
@@ -3827,3 +3832,5 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@1.2.1: {}
+
+  zod@3.24.2: {}

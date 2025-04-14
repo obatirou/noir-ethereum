@@ -33,9 +33,6 @@ use super::types::{Key, Leaf, Value};
 /// * `key_ptr`: Pointer to track position in the key
 /// * `value`: The expected value
 ///
-/// # Returns
-/// True if the leaf node is valid, false otherwise
-///
 /// # Panics
 /// Panics if the leaf node structure is invalid or key mismatch is detected
 pub fn verify_leaf<let MaxLeafLen: u32, let MaxKeyNibbleLen: u32, let MaxValueLen: u32>(
@@ -43,7 +40,7 @@ pub fn verify_leaf<let MaxLeafLen: u32, let MaxKeyNibbleLen: u32, let MaxValueLe
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
     value: Value<MaxValueLen>,
-) -> bool {
+) {
     // Decode the leaf node into its RLP components
     let leaf_list: RlpList<2> = decode_list(Fragment::from_array(leaf));
     assert(leaf_list.len() == 2, "Leaf expected to have 2 fields");
@@ -68,17 +65,19 @@ pub fn verify_leaf<let MaxLeafLen: u32, let MaxKeyNibbleLen: u32, let MaxValueLe
     // Verify value match
     let value = right_pad(value);
     let value_rlp_fragment = leaf_list.get(1);
+    println(value_rlp_fragment);
 
     // Check both length and content match
-    let is_equal_len = value_rlp_fragment.len() == value.len().into();
-    let is_equal_data = sub_array_equals_up_to_length(
-        value.storage(),
-        leaf,
-        value_rlp_fragment.offset(),
-        value_rlp_fragment.len(),
+    assert(value_rlp_fragment.len() == value.len().into(), "Value length mismatch");
+    assert(
+        sub_array_equals_up_to_length(
+            value.storage(),
+            leaf,
+            value_rlp_fragment.offset(),
+            value_rlp_fragment.len(),
+        ),
+        "Value data mismatch",
     );
-
-    is_equal_data & is_equal_len
 }
 
 /// Verifies a complete Merkle Patricia Trie proof.
@@ -93,8 +92,6 @@ pub fn verify_leaf<let MaxLeafLen: u32, let MaxKeyNibbleLen: u32, let MaxValueLe
 /// * `root`: The root hash of the trie
 /// * `proof`: The proof to verify
 ///
-/// # Returns
-/// True if the proof is valid, false otherwise
 ///
 /// # Panics
 /// Panics if any node in the proof path has an invalid hash
@@ -103,7 +100,7 @@ pub fn verify_merkle_proof<let MaxKeyNibbleLen: u32, let MaxValueLen: u32, let M
     value: Value<MaxValueLen>,
     root: Hash,
     proof: Proof<MaxDepth, MaxLeafLen>,
-) -> bool {
+) {
     // Prepare key for verification
     let key = right_pad(key);
     let key_nibbles = bytes_to_nibbles(Fragment::from_vec(key));
@@ -116,8 +113,7 @@ pub fn verify_merkle_proof<let MaxKeyNibbleLen: u32, let MaxValueLen: u32, let M
     for i in 0..MaxDepth {
         if i.into() < proof.depth() - 1 {
             // Verify current node's hash matches expected hash
-            let node_verified = verify_node_hash(proof.nodes()[i], curr_hash.data());
-            assert(node_verified, f"Invalid node hash at depth {i}");
+            verify_node_hash(proof.nodes()[i], curr_hash.data());
 
             // Extract next hash in the path
             curr_hash = extract_hash(proof.nodes()[i], key_nibbles, &mut key_ptr);
@@ -125,11 +121,8 @@ pub fn verify_merkle_proof<let MaxKeyNibbleLen: u32, let MaxValueLen: u32, let M
     }
 
     // Verify final leaf node
-    let node_hash_verified = verify_node_hash(proof.leaf(), curr_hash.data());
-    let leaf_verified = verify_leaf(proof.leaf(), key_nibbles, &mut key_ptr, value);
-
-    // Both hash chain and leaf contents must be valid
-    node_hash_verified & leaf_verified
+    verify_node_hash(proof.leaf(), curr_hash.data());
+    verify_leaf(proof.leaf(), key_nibbles, &mut key_ptr, value);
 }
 
 mod verify_merkle_tree_tests {
@@ -157,41 +150,41 @@ mod verify_merkle_tree_tests {
 
     #[test]
     fn test_verify_merkle_proof_large() {
-        assert(verify_merkle_proof(
+        verify_merkle_proof(
             leaf_large_key,
             leaf_large_value,
             leaf_large_root,
             leaf_large_input.proof(),
-        ));
+        );
     }
 
     #[test]
     fn test_verify_merkle_proof_small() {
-        assert(verify_merkle_proof(
+        verify_merkle_proof(
             leaf_small_key,
             leaf_small_value,
             leaf_small_root,
             leaf_small_input.proof(),
-        ));
+        );
     }
 
     #[test]
     fn test_verify_merkle_proof_extension_even() {
-        assert(verify_merkle_proof(
+        verify_merkle_proof(
             extension_even_key,
             extension_even_value,
             extension_even_root,
             extension_even_input.proof(),
-        ));
+        );
     }
 
     #[test]
     fn test_verify_merkle_proof_extension_odd() {
-        assert(verify_merkle_proof(
+        verify_merkle_proof(
             extension_odd_key,
             extension_odd_value,
             extension_odd_root,
             extension_odd_input.proof(),
-        ));
+        );
     }
 }

@@ -214,10 +214,13 @@ pub fn extract_hash<let MaxKeyNibbleLen: u32>(
 /// * `node` - The RLP-encoded node
 /// * `hash` - The expected hash value
 ///
-/// # Returns
-/// True if the node's hash matches the expected value, false otherwise
-pub fn verify_node_hash<let MaxNodeLen: u32>(node: [u8; MaxNodeLen], hash: Hash) -> bool {
-    keccak256(node, get_node_len(node) as u32) == hash
+/// # Panics
+/// Panics if the node's hash does not match the expected hash
+pub fn verify_node_hash<let MaxNodeLen: u32>(node: [u8; MaxNodeLen], hash: Hash) {
+    assert(
+        keccak256(node, get_node_len(node) as u32) == hash,
+        "Node hash does not match expected hash",
+    );
 }
 
 mod get_node_len {
