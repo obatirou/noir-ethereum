@@ -166,6 +166,48 @@ pub fn right_pad<let N: u32>(arr: [u8; N]) -> BoundedVec<u8, N> {
     byte_value(arr)
 }
 
+/// Converts a 32-bit unsigned integer to its big-endian byte array representation.
+///
+/// This function takes a u32 value and converts it to a 4-byte array in big-endian
+/// format, which is the standard byte order used in Ethereum for encoding integers.
+///
+/// # Arguments
+///
+/// * `num` - The 32-bit unsigned integer to convert
+///
+/// # Returns
+///
+/// A 4-byte array containing the big-endian representation of the input number
+pub fn u32_to_u8(num: u32) -> [u8; 4] {
+    let mut out: [u8; 4] = [0; 4];
+    for i in 0..4 {
+        out[i] = (num >> (24 - (i * 8))) as u8;
+    }
+
+    out
+}
+
+/// Converts a 64-bit unsigned integer to its big-endian byte array representation.
+///
+/// This function takes a u64 value and converts it to an 8-byte array in big-endian
+/// format, which is the standard byte order used in Ethereum for encoding integers.
+///
+/// # Arguments
+///
+/// * `num` - The 64-bit unsigned integer to convert
+///
+/// # Returns
+///
+/// An 8-byte array containing the big-endian representation of the input number
+pub fn u64_to_u8(num: u64) -> [u8; 8] {
+    let mut out: [u8; 8] = [0; 8];
+    for i in 0..8 {
+        out[i] = (num >> (56 - (i * 8))) as u8;
+    }
+
+    out
+}
+
 mod byte_to_nibbles_tests {
     use super::byte_to_nibbles;
 

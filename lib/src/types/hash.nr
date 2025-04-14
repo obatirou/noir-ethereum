@@ -12,7 +12,7 @@
 use super::bytes32::Bytes32;
 
 /// The length of a Hash in bytes (32 bytes = 256 bits)
-pub global HASH_LEN: u32 = 32;
+pub global HASH_LENGTH: u32 = 32;
 
 /// A 32-byte hash value used in Ethereum.
 ///

@@ -7,3 +7,5 @@ pub mod account;
 pub mod helpers;
 
 pub mod fixtures;
+
+use crate::account::Account;

@@ -1,8 +1,16 @@
 use crate::mpt::proof::ProofInput;
 use super::account::Account;
 
-pub struct StateAndStorageProofInput {
+use super::constants::{
+    MAX_ACCOUNT_DEPTH, MAX_ACCOUNT_LEAF_LENGTH, MAX_ACCOUNT_STATE_LENGTH, MAX_KEY_LENGTH,
+    MAX_STORAGE_DEPTH, MAX_STORAGE_LEAF_LENGTH, MAX_STORAGE_VALUE_LENGTH,
+};
+
+pub type AccountProof = ProofInput<MAX_KEY_LENGTH, MAX_ACCOUNT_STATE_LENGTH, MAX_ACCOUNT_DEPTH, MAX_ACCOUNT_LEAF_LENGTH>;
+pub type StorageProof = ProofInput<MAX_KEY_LENGTH, MAX_STORAGE_VALUE_LENGTH, MAX_STORAGE_DEPTH, MAX_STORAGE_LEAF_LENGTH>;
+
+pub struct StateAndStorageProofInput<let StorageProofsLen: u32> {
     account: Account,
-    state_proof_input: ProofInput<MAX_PREFIXED_KEY_NIBBLE_LEN, MAX_ACCOUNT_STATE_LEN, MAX_ACCOUNT_DEPTH_NO_LEAF_M, MAX_ACCOUNT_LEAF_LEN>,
-    storage_proof_input: ProofInput<MAX_PREFIXED_KEY_NIBBLE_LEN, MAX_STORAGE_VALUE_LEN, MAX_STORAGE_DEPTH_NO_LEAF_M, MAX_STORAGE_LEAF_LEN>,
+    account_proof: AccountProof,
+    storage_proof: [StorageProof; StorageProofsLen],
 }

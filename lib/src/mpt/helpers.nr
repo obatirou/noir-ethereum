@@ -9,7 +9,7 @@ use std::hash::keccak256;
 
 use crate::helpers::bytes::{byte_to_nibbles, bytes_to_nibbles};
 use crate::rlp::{decode::{decode_list_of_small_strings, decode_to_rlp_header}, list::RlpList};
-use crate::types::{fragment::Fragment, hash::{Hash, HASH_LEN}};
+use crate::types::{fragment::Fragment, hash::{Hash, HASH_LENGTH}};
 
 use super::constants::{BRANCH_NODE_NUM_FIELDS, EXTENSION_NODE_NUM_FIELDS, MAX_NODE_FIELDS};
 use super::types::Node;
@@ -108,17 +108,17 @@ pub fn extract_hash_from_branch_node<let MaxKeyNibbleLen: u32>(
     node_rlp_list: RlpList<MAX_NODE_FIELDS>,
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
-) -> Fragment<u8, HASH_LEN> {
+) -> Fragment<u8, HASH_LENGTH> {
     let curr_nibble = key_nibbles.at(*key_ptr).into();
     assert(
-        node_rlp_list.get(curr_nibble).len() == HASH_LEN.into(),
+        node_rlp_list.get(curr_nibble).len() == HASH_LENGTH.into(),
         "Expected a hash at position given by the key nibble",
     );
     *key_ptr += 1;
 
     Fragment::new(
         node_rlp_list.get(curr_nibble).offset(),
-        (HASH_LEN as u64),
+        (HASH_LENGTH as u64),
         node,
     )
         .focus()
@@ -145,7 +145,7 @@ pub fn extract_hash_from_extension_node<let MaxKeyNibbleLen: u32>(
     node_rlp_list: RlpList<MAX_NODE_FIELDS>,
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
-) -> Fragment<u8, HASH_LEN> {
+) -> Fragment<u8, HASH_LENGTH> {
     let prefixed_extension_key_part: Fragment<u8, MaxKeyNibbleLen> = Fragment::new(
         node_rlp_list.get(0).offset(),
         node_rlp_list.get(0).len(),
@@ -163,12 +163,12 @@ pub fn extract_hash_from_extension_node<let MaxKeyNibbleLen: u32>(
         "Extension key part does not correspond to given key nibbles",
     );
     assert(
-        node_rlp_list.get(1).len() == HASH_LEN.into(),
+        node_rlp_list.get(1).len() == HASH_LENGTH.into(),
         "Expected a hash at the end of the extension node",
     );
     *key_ptr += extension_key_part.len();
 
-    Fragment::new(node_rlp_list.get(1).offset(), HASH_LEN.into(), node).focus()
+    Fragment::new(node_rlp_list.get(1).offset(), HASH_LENGTH.into(), node).focus()
 }
 
 /// Extracts a hash from an MPT node based on its type.
@@ -190,8 +190,8 @@ pub fn extract_hash<let MaxKeyNibbleLen: u32>(
     node: Node,
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
-) -> Fragment<u8, HASH_LEN> {
-    let mut hash = Fragment::from_array([0; HASH_LEN]);
+) -> Fragment<u8, HASH_LENGTH> {
+    let mut hash = Fragment::from_array([0; HASH_LENGTH]);
     let node_list: RlpList<MAX_NODE_FIELDS> =
         decode_list_of_small_strings(Fragment::from_array(node));
 

@@ -1,4 +1,14 @@
-use crate::types::{address::Address, bytes32::Bytes32};
+use crate::{
+    mpt::{proof::ProofInput, verify::verify_merkle_proof},
+    types::{address::Address, bytes32::Bytes32, hash::Hash},
+};
+
+use super::{
+    constants::{
+        MAX_ACCOUNT_DEPTH, MAX_ACCOUNT_LEAF_LENGTH, MAX_ACCOUNT_STATE_LENGTH, MAX_KEY_LENGTH,
+    },
+    helpers::{assert_account_equals, assert_address_equals},
+};
 
 pub struct Account {
     address: Address,
@@ -48,4 +58,19 @@ impl Eq for Account {
             & (self.storage_hash == other.storage_hash)
             & (self.code_hash == other.code_hash)
     }
+}
+
+pub fn verify_account<let MaxDepth: u32>(
+    account: Account,
+    state_proof_input: ProofInput<MAX_KEY_LENGTH, MAX_ACCOUNT_STATE_LENGTH, MAX_ACCOUNT_DEPTH, MAX_ACCOUNT_LEAF_LENGTH>,
+    state_root: Hash,
+) -> bool {
+    assert_address_equals(state_proof_input.key(), account.address());
+    assert_account_equals(state_proof_input.value(), account);
+    verify_merkle_proof(
+        state_proof_input.key(),
+        state_proof_input.value(),
+        state_root,
+        state_proof_input.proof(),
+    )
 }

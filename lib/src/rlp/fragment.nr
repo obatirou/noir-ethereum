@@ -4,6 +4,8 @@
 //! A fragment represents a portion of RLP-encoded data with metadata about its position,
 //! length, and type (string or list).
 
+use crate::helpers::bytes::{byte_value, u32_to_u8, u64_to_u8};
+use crate::types::{address::Address, bytes32::Bytes32, fragment::Fragment};
 use super::constants::{List, String};
 use super::header::RlpHeader;
 
@@ -159,6 +161,246 @@ impl RlpFragment {
     /// `true` if the fragment is valid, `false` otherwise
     pub fn is_valid(self) -> bool {
         (self.length > 0) + self.is_empty()
+    }
+
+    /// Asserts that an RLP fragment matches a byte array value.
+    ///
+    /// This function verifies that:
+    /// - The fragment is of type String
+    /// - The fragment length matches the value length
+    /// - The fragment's bytes match the provided value
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected byte array value
+    ///
+    /// # Panics
+    ///
+    /// Panics with a descriptive message if any of the assertions fail:
+    /// - "Invalid RLP type" if the fragment is not a String
+    /// - "Invalid RLP length" if lengths don't match
+    /// - "Invalid RLP value" if the bytes don't match
+    pub fn assert_eq_bytes<let FieldNameLen: u32, let MaxRlpLen: u32, let MaxValueLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: Fragment<u8, MaxValueLen>,
+    ) {
+        assert(self.data_type == String, f"{field_name}: Invalid RLP type");
+        assert(self.length == value.len(), f"{field_name}: Invalid RLP length");
+        assert(
+            rlp.sub_fragment(self.offset, self.length).eq(value),
+            f"{field_name}: Invalid RLP value",
+        );
+    }
+
+    /// Asserts that an RLP fragment matches a bounded vector value.
+    ///
+    /// This is a convenience wrapper around `assert_eq_bytes` that works with
+    /// bounded vectors instead of fragments.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected bounded vector value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_bounded_vec<let FieldNameLen: u32, let MaxRlpLen: u32, let MaxValueLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: BoundedVec<u8, MaxValueLen>,
+    ) {
+        self.assert_eq_bytes(field_name, rlp, Fragment::from_vec(value));
+    }
+
+    /// Asserts that an RLP fragment represents an empty string.
+    ///
+    /// This function verifies that:
+    /// - The fragment is of type String
+    /// - The fragment has zero length
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    ///
+    /// # Panics
+    ///
+    /// Panics with a descriptive message if any of the assertions fail:
+    /// - "Invalid RLP type" if the fragment is not a String
+    /// - "Expected empty string" if the length is not zero
+    pub fn assert_empty_string<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+    ) {
+        assert(self.data_type == String, f"{field_name}: Invalid RLP type");
+        assert(self.length == 0, f"{field_name}: Expected empty string");
+    }
+
+    /// Asserts that an RLP fragment matches a u1 value.
+    ///
+    /// This function verifies that the fragment contains exactly one byte
+    /// matching the provided u1 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected u1 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_u1<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: u1,
+    ) {
+        self.assert_eq_bytes(field_name, rlp, Fragment::from_array([value as u8]));
+    }
+
+    /// Asserts that an RLP fragment matches a u8 value.
+    ///
+    /// This function verifies that the fragment contains exactly one byte
+    /// matching the provided u8 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected u8 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_u8<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: u8,
+    ) {
+        self.assert_eq_bounded_vec(field_name, rlp, byte_value([value]));
+    }
+
+    /// Asserts that an RLP fragment matches a u32 value.
+    ///
+    /// This function verifies that the fragment contains exactly four bytes
+    /// representing the big-endian encoding of the provided u32 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected u32 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_u32<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: u32,
+    ) {
+        self.assert_eq_bounded_vec(field_name, rlp, byte_value(u32_to_u8(value)));
+    }
+
+    /// Asserts that an RLP fragment matches a u64 value.
+    ///
+    /// This function verifies that the fragment contains exactly eight bytes
+    /// representing the big-endian encoding of the provided u64 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected u64 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_u64<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: u64,
+    ) {
+        self.assert_eq_bounded_vec(field_name, rlp, byte_value(u64_to_u8(value)));
+    }
+
+    /// Asserts that an RLP fragment matches a u128 value.
+    ///
+    /// This function verifies that the fragment contains exactly sixteen bytes
+    /// representing the big-endian encoding of the provided u128 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected u128 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_u128<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: U128,
+    ) {
+        self.assert_eq_bounded_vec(field_name, rlp, byte_value(value.to_be_bytes()));
+    }
+
+    /// Asserts that an RLP fragment matches an Ethereum address.
+    ///
+    /// This function verifies that the fragment contains exactly twenty bytes
+    /// matching the provided Ethereum address.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected Ethereum address
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_address<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: Address,
+    ) {
+        self.assert_eq_bytes(field_name, rlp, Fragment::from_array(value));
+    }
+
+    /// Asserts that an RLP fragment matches a 32-byte value.
+    ///
+    /// This function verifies that the fragment contains exactly thirty-two bytes
+    /// matching the provided Bytes32 value.
+    ///
+    /// # Arguments
+    ///
+    /// * `field_name` - Name of the field being validated (used in error messages)
+    /// * `rlp` - The RLP fragment to validate
+    /// * `value` - The expected Bytes32 value
+    ///
+    /// # Panics
+    ///
+    /// Panics with the same messages as `assert_eq_bytes`
+    pub fn assert_eq_bytes32<let FieldNameLen: u32, let MaxRlpLen: u32>(
+        self,
+        field_name: str<FieldNameLen>,
+        rlp: Fragment<u8, MaxRlpLen>,
+        value: Bytes32,
+    ) {
+        self.assert_eq_bytes(field_name, rlp, Fragment::from_array(value));
     }
 }
 
