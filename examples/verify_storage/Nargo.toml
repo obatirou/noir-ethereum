@@ -1,0 +1,7 @@
+[package]
+name = "verify_storage"
+type = "bin"
+authors = ["Vedant Chainani <vedant@zkpersona.xyz>"]
+
+[dependencies]
+ethereum = { path = "../../lib" }

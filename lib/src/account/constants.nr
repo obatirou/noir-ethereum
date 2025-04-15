@@ -11,8 +11,8 @@ pub global MAX_PREFIXED_KEY_NIBBLE_LENGTH: u32 = 66; // (32 + 1) * 2
 /// Maximum depth of the account state trie proof.
 /// This value represents the maximum number of nodes that can be present in a proof path
 /// from the root to a leaf node in the account state trie.
-/// Set to 10 to accommodate the maximum possible trie depth for account lookups.
-pub global MAX_ACCOUNT_DEPTH: u32 = 10;
+/// Set to 8 to accommodate the maximum possible trie depth for account lookups.
+pub global MAX_ACCOUNT_DEPTH: u32 = 8;
 
 /// Maximum length (in bytes) of an account state value in RLP encoding.
 /// This value accounts for the RLP-encoded representation of an account's state,

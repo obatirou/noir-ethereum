@@ -2,7 +2,6 @@ import {
   http,
   createPublicClient,
   encodeAbiParameters,
-  fromRlp,
   hexToBytes,
   keccak256,
   toHex,
@@ -11,6 +10,15 @@ import { mainnet } from 'viem/chains';
 
 import { Trie } from '@ethereumjs/trie';
 
+import path from 'path';
+import {
+  Field,
+  FixedSizeArray,
+  U8,
+  U64,
+  generateToml,
+  toJSON,
+} from '@zkpersona/noir-helpers';
 import { namehash } from 'viem';
 
 const parseArray = (data: number[] | `0x${string}` | Uint8Array) => {
@@ -151,7 +159,7 @@ const storageProofBuffers = (p.storageProof[0] ?? { proof: [] })?.proof.map(
   (p) => hexToBytes(p)
 );
 
-await storageTrie.verifyProof(
+const storageValueRlp = await storageTrie.verifyProof(
   storageTrie.root(),
   keccak256(slot, 'bytes'),
   storageProofBuffers
@@ -199,23 +207,63 @@ const accountProof = {
 
 const storageProofInput = {
   key: parseArray(leftPad(keccak256(storageKey), 66)),
-  value: parseArray(leftPad(storageValue, 32)),
+  value: parseArray(leftPad(storageValueRlp ?? [], 33)),
   proof: storageProof,
 };
 
-// console.log({
-//   account,
-//   accountProof,
-//   storageProof: storageProofInput,
-//   storageHash: parseArray(p.storageHash),
-//   stateRoot: parseArray(block.stateRoot),
-// });
+const accountData = {
+  address: new FixedSizeArray(
+    20,
+    Array.from(hexToBytes(address)).map((x) => new U8(x))
+  ),
+  balance: new Field(account.balance),
+  code_hash: new FixedSizeArray(
+    32,
+    Array.from(hexToBytes(p.codeHash)).map((x) => new U8(x))
+  ),
+  storage_hash: new FixedSizeArray(
+    32,
+    Array.from(hexToBytes(p.storageHash)).map((x) => new U8(x))
+  ),
+  nonce: new U64(p.nonce),
+};
 
-console.log('Storage Value: ', hexToBytes(storageValue));
-const leaf = hexToBytes(storageLeafNode);
+const nodesData = nodes.map((val) => {
+  const items = rightPad(val, 532).map((x) => new U8(x));
+  return new FixedSizeArray(532, items);
+});
 
-console.log('Leaf: ', leaf);
-console.log('Leaf Decoded: ', fromRlp(leaf, 'bytes'));
+while (nodesData.length !== 10) {
+  nodesData.push(new FixedSizeArray(532, new Array(532).fill(new U8(0))));
+}
 
-const sliced = leaf.slice(34, 34 + 33);
-console.log(sliced);
+const proofData = {
+  key: new FixedSizeArray(
+    66,
+    leftPad(keccak256(p.address, 'bytes'), 66).map((x) => new U8(x))
+  ),
+  value: new FixedSizeArray(
+    110,
+    leftPad(accountRlp ?? [], 110).map((x) => new U8(x))
+  ),
+  proof: {
+    nodes: new FixedSizeArray(10, nodesData),
+    leaf: new FixedSizeArray(
+      148,
+      rightPad(leafNode, 148).map((x) => new U8(x))
+    ),
+    depth: new U64(p.accountProof.length),
+  },
+};
+
+const data = {
+  account: accountData,
+  account_proof: proofData,
+  state_root: new FixedSizeArray(
+    32,
+    Array.from(hexToBytes(block.stateRoot)).map((x) => new U8(x))
+  ),
+};
+
+const inputs = toJSON(data);
+generateToml(inputs, path.join(__dirname, 'Prover.toml'));
