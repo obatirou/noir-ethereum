@@ -52,3 +52,21 @@ LIBRARY = { tag = "v0.1.0", git = "https://github.com/noir-lang/LIBRARY_NAME" }
 ### Usage
 
 `PLACEHOLDER`
+
+## Benchmarks
+
+### Verify Account
+
+```md
+Compilation time: 3.91s
+Execution time: 1.08s
+Prove time: 5.536s
+```
+
+### Verify Storage Proof
+
+```md
+Compilation time: 2.78s
+Execution time: 0.81s
+Prove time: 4.402s
+```

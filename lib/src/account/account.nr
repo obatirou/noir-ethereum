@@ -169,9 +169,3 @@ mod verify_account_tests {
         verify_account(account, account_proof, state_root);
     }
 }
-
-// 10k
-// 23k
-// 42k
-// 1052k
-

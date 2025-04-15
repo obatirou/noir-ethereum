@@ -81,6 +81,7 @@ pub fn strip_prefix<let MaxKeyLen: u32>(
 
     let prefix = nibbles.pop_front();
     let parity = parity(prefix);
+
     if (is_even_parity(parity)) {
         assert(nibbles.pop_front() == 0, "Expected a zero after a prefix of even parity");
     }
@@ -109,19 +110,15 @@ pub fn extract_hash_from_branch_node<let MaxKeyNibbleLen: u32>(
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
 ) -> Fragment<u8, HASH_LENGTH> {
-    let curr_nibble = key_nibbles.at(*key_ptr).into();
+    let current_nibble = key_nibbles.at(*key_ptr).into();
+    let fragment = node_rlp_list.get(current_nibble);
     assert(
-        node_rlp_list.get(curr_nibble).len() == HASH_LENGTH.into(),
+        fragment.len() == HASH_LENGTH.into(),
         "Expected a hash at position given by the key nibble",
     );
     *key_ptr += 1;
 
-    Fragment::new(
-        node_rlp_list.get(curr_nibble).offset(),
-        (HASH_LENGTH as u64),
-        node,
-    )
-        .focus()
+    Fragment::new(fragment.offset(), (HASH_LENGTH as u64), node).focus()
 }
 
 /// Extracts a hash from an extension node in the MPT.
@@ -146,29 +143,49 @@ pub fn extract_hash_from_extension_node<let MaxKeyNibbleLen: u32>(
     key_nibbles: Fragment<u8, MaxKeyNibbleLen>,
     key_ptr: &mut u64,
 ) -> Fragment<u8, HASH_LENGTH> {
-    let prefixed_extension_key_part: Fragment<u8, MaxKeyNibbleLen> = Fragment::new(
-        node_rlp_list.get(0).offset(),
-        node_rlp_list.get(0).len(),
+    // First Item is a compact encoded Key
+    let encoded_partial_key_component = node_rlp_list.get(0);
+
+    let encoded_partial_key: Fragment<u8, MaxKeyNibbleLen> = Fragment::new(
+        encoded_partial_key_component.offset(),
+        encoded_partial_key_component.len(),
         node,
     )
         .focus();
 
-    let (prefix, _) = byte_to_nibbles(prefixed_extension_key_part.at(0));
+    // Decode First byte of encoded key. (prefix, padding)
+    // Prefix:
+    // 0: Extension node with even-length path.
+    // 1: Extension node with odd-length path.
+    // 2: Leaf node with even-length path.
+    // 3: Leaf node with odd-length path.
+    // Padding:
+    // 0: No padding needed.
+    // 1: Padding needed.
+    let (prefix, _) = byte_to_nibbles(encoded_partial_key.at(0));
+
     assert((prefix == 0) | (prefix == 1), "Extension parity prefix must be 0 or 1");
-    let extension_key_part = strip_prefix(prefixed_extension_key_part);
-    // Extension nodes have a prefix that needs to be removed.
-    let curr_key_nibbles_part = key_nibbles.sub_fragment(*key_ptr, extension_key_part.len());
+
+    // Strip Prefix and padding if even parity to get partial key
+    let partial_key = strip_prefix(encoded_partial_key);
+
+    let current_key_nibbles_part = key_nibbles.sub_fragment(*key_ptr, partial_key.len());
+
     assert(
-        extension_key_part == curr_key_nibbles_part,
+        partial_key == current_key_nibbles_part,
         "Extension key part does not correspond to given key nibbles",
     );
+
+    let next_node = node_rlp_list.get(1);
+
     assert(
-        node_rlp_list.get(1).len() == HASH_LENGTH.into(),
+        next_node.len() == HASH_LENGTH.into(),
         "Expected a hash at the end of the extension node",
     );
-    *key_ptr += extension_key_part.len();
 
-    Fragment::new(node_rlp_list.get(1).offset(), HASH_LENGTH.into(), node).focus()
+    *key_ptr += partial_key.len();
+
+    Fragment::new(next_node.offset(), HASH_LENGTH.into(), node).focus()
 }
 
 /// Extracts a hash from an MPT node based on its type.

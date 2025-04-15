@@ -43,17 +43,16 @@ pub fn assert_account_equals(
     // Convert left-padded RLP data to right-padded format
     let account_rlp_right_padded = right_pad(account_rlp_left_padded).storage();
 
+    let account_rlp = Fragment::from_array(account_rlp_right_padded);
+
     // Decode the RLP data into a list of fields
-    let account_rlp_list: RlpList<ACCOUNT_FIELDS_COUNT> =
-        decode_list_of_small_strings(Fragment::from_array(account_rlp_right_padded));
+    let account_rlp_list: RlpList<ACCOUNT_FIELDS_COUNT> = decode_list_of_small_strings(account_rlp);
 
     // Verify the number of fields matches the expected count
     assert(
         account_rlp_list.len() == ACCOUNT_FIELDS_COUNT,
         "Invalid number of fields in account RLP",
     );
-
-    let account_rlp = Fragment::from_array(account_rlp_right_padded);
 
     // Compare each field with the Account struct
     account_rlp_list.get(NONCE_INDEX).assert_eq_u64("Nonce", account_rlp, account.nonce() as u64);
