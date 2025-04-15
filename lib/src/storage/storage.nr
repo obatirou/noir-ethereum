@@ -17,3 +17,13 @@ pub fn verify_storage_proofs<let N: u32>(proofs: [StorageProof; N], storage_root
         verify_storage_proof(proof_input, storage_root);
     }
 }
+
+mod verify_storage_proof_tests {
+    use crate::fixtures::storage::contract_storage::{storage_proof, storage_root};
+    use super::verify_storage_proof;
+
+    #[test]
+    fn test_verify_storage_proof() {
+        verify_storage_proof(storage_proof, storage_root);
+    }
+}

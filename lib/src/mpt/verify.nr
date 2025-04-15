@@ -65,7 +65,6 @@ pub fn verify_leaf<let MaxLeafLen: u32, let MaxKeyNibbleLen: u32, let MaxValueLe
     // Verify value match
     let value = right_pad(value);
     let value_rlp_fragment = leaf_list.get(1);
-    println(value_rlp_fragment);
 
     // Check both length and content match
     assert(value_rlp_fragment.len() == value.len().into(), "Value length mismatch");
