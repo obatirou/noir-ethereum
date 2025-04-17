@@ -88,6 +88,38 @@ where
     result
 }
 
+/// Compares a subarray with a portion of a larger array for equality.
+///
+/// # Arguments
+///
+/// * `subarray` - The subarray to compare
+/// * `array` - The larger array to compare against
+/// * `offset` - Starting index in the larger array
+///
+/// # Returns
+///
+/// * `true` if the subarray matches the portion of the larger array
+/// * `false` otherwise
+///
+/// # Panics
+///
+/// * If offset + subarray length exceeds array size
+pub fn sub_array_equals<T, let SubArrayLen: u32, let ArrayLen: u32>(
+    subarray: [T; SubArrayLen],
+    array: [T; ArrayLen],
+    offset: u64,
+) -> bool
+where
+    T: Eq,
+{
+    assert(offset + (SubArrayLen as u64) <= (ArrayLen as u64), "Array index out of bound");
+    let mut result = true;
+    for i in 0..SubArrayLen {
+        result &= subarray[i] == array[offset + i as u64];
+    }
+    result
+}
+
 mod tests {
     use super::{memcpy, memcpy_up_to_length, sub_array_equals_up_to_length};
 

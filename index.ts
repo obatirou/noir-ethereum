@@ -134,9 +134,9 @@
 // });
 
 // const block = await publicClient.getBlock();
-
 // // ENS Public
-// const address = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
+// block.const;
+// address = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
 
 // const p = await publicClient.getProof({
 //   address,
@@ -306,12 +306,12 @@
 // const inputs = toJSON(data);
 // generateToml(inputs, path.join(__dirname, 'Prover.toml'));
 
-import { fromRlp } from 'viem';
+// import { fromRlp } from 'viem';
 
-const arr = Uint8Array.from([
-  228, 130, 17, 35, 160, 96, 193, 223, 22, 218, 38, 132, 115, 174, 230, 176, 2,
-  202, 231, 156, 249, 16, 209, 250, 11, 200, 192, 102, 154, 250, 99, 27, 174,
-  208, 235, 111, 82,
-]);
+// const arr = Uint8Array.from([
+//   228, 130, 17, 35, 160, 96, 193, 223, 22, 218, 38, 132, 115, 174, 230, 176, 2,
+//   202, 231, 156, 249, 16, 209, 250, 11, 200, 192, 102, 154, 250, 99, 27, 174,
+//   208, 235, 111, 82,
+// ]);
 
-console.log(fromRlp(arr, 'bytes'));
+// console.log(fromRlp(arr, 'bytes'));

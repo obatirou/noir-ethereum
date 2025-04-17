@@ -1,0 +1,2 @@
+pub global ETHEREUM_MAINNET_CHAIN_ID: u64 = 1;
+pub global ETHEREUM_SEPOLIA_CHAIN_ID: u64 = 58008;
