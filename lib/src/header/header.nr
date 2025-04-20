@@ -214,10 +214,12 @@ pub fn verify_header(
 
     let expected_header_fields_count =
         get_header_fields_count(chain_id, block_header_partial.number);
+    let actual_header_fields_count = header_rlp_list.len() as u64;
 
     assert(
-        expected_header_fields_count == header_rlp_list.len() as u64,
-        "number of header RLP fields does not match",
+        expected_header_fields_count == actual_header_fields_count,
+        f"Expected header fields count: {expected_header_fields_count}, got
+        : {actual_header_fields_count}",
     );
 
     header_rlp_list.get(BLOCK_NUMBER_INDEX).assert_eq_u64(
@@ -241,11 +243,12 @@ pub fn verify_header(
         block_header_partial.receipts_root,
     );
 
+    // Only check withdrawals root if it is present in the block header partial
     if (block_header_partial.withdrawals_root.is_some()) {
         header_rlp_list.get(WITHDRAWALS_ROOT_INDEX).assert_eq_bytes32(
             "Withdrawals Root",
             block_header_rlp,
-            block_header_partial.receipts_root,
+            block_header_partial.withdrawals_root().unwrap(),
         );
     }
 
@@ -255,6 +258,64 @@ pub fn verify_header(
             block_header_partial.hash,
             0,
         ),
-        "block hash does not match",
+        "Block Hash does not Match",
     );
+}
+
+mod pre_london_tests {
+    use crate::fixtures::header::{PRE_LONDON_BLOCK_HEADER_RLP, PRE_LONDON_PARTIAL_BLOCK_HEADER};
+    use super::verify_header;
+
+    #[test]
+    fn test_verify_pre_london_block() {
+        verify_header(
+            1,
+            PRE_LONDON_PARTIAL_BLOCK_HEADER,
+            PRE_LONDON_BLOCK_HEADER_RLP,
+        );
+    }
+}
+
+mod post_london_tests {
+    use crate::fixtures::header::{POST_LONDON_BLOCK_HEADER_RLP, POST_LONDON_PARTIAL_BLOCK_HEADER};
+    use super::verify_header;
+
+    #[test]
+    fn test_verify_post_london_block() {
+        verify_header(
+            1,
+            POST_LONDON_PARTIAL_BLOCK_HEADER,
+            POST_LONDON_BLOCK_HEADER_RLP,
+        );
+    }
+}
+
+mod post_shanghai_tests {
+    use crate::fixtures::header::{
+        POST_SHANGHAI_BLOCK_HEADER_RLP, POST_SHANGHAI_PARTIAL_BLOCK_HEADER,
+    };
+    use super::verify_header;
+
+    #[test]
+    fn test_verify_post_shanghai_block() {
+        verify_header(
+            1,
+            POST_SHANGHAI_PARTIAL_BLOCK_HEADER,
+            POST_SHANGHAI_BLOCK_HEADER_RLP,
+        );
+    }
+}
+
+mod post_cancun_tests {
+    use crate::fixtures::header::{POST_CANCUN_BLOCK_HEADER_RLP, POST_CANCUN_PARTIAL_BLOCK_HEADER};
+    use super::verify_header;
+
+    #[test]
+    fn test_verify_post_cancun_block() {
+        verify_header(
+            1,
+            POST_CANCUN_PARTIAL_BLOCK_HEADER,
+            POST_CANCUN_BLOCK_HEADER_RLP,
+        );
+    }
 }

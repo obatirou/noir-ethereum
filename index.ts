@@ -1,142 +1,175 @@
-// import {
-//   http,
-//   createPublicClient,
-//   encodeAbiParameters,
-//   hexToBytes,
-//   keccak256,
-//   toHex,
-// } from 'viem';
-// import { mainnet } from 'viem/chains';
+import {
+  http,
+  type ByteArray,
+  createPublicClient,
+  encodeAbiParameters,
+  hexToBytes,
+  keccak256,
+  toBytes,
+  toHex,
+  toRlp,
+  hexToBigInt,
+} from 'viem';
+import { namehash } from 'viem';
+import { mainnet } from 'viem/chains';
 
-// import { Trie } from '@ethereumjs/trie';
+const parseArray = (data: number[] | `0x${string}` | Uint8Array) => {
+  const arr = Array.isArray(data)
+    ? data
+    : // biome-ignore lint/nursery/noNestedTernary: <explanation>
+      data instanceof Uint8Array
+      ? Array.from(data)
+      : Array.from(hexToBytes(data));
+  return `[${arr.join(', ')}]`;
+};
 
-// import path from 'path';
-// import {
-//   Field,
-//   FixedSizeArray,
-//   U8,
-//   U64,
-//   generateToml,
-//   toJSON,
-// } from '@zkpersona/noir-helpers';
-// import { namehash } from 'viem';
+const leftPad = (
+  data: number[] | `0x${string}` | Uint8Array,
+  finalLength: number
+) => {
+  const arr = Array.isArray(data)
+    ? data
+    : // biome-ignore lint/nursery/noNestedTernary: <explanation>
+      data instanceof Uint8Array
+      ? Array.from(data)
+      : Array.from(hexToBytes(data));
+  const zeroToAdd = finalLength - arr.length;
+  return [...new Array<number>(zeroToAdd).fill(0), ...arr];
+};
 
-// const parseArray = (data: number[] | `0x${string}` | Uint8Array) => {
-//   const arr = Array.isArray(data)
-//     ? data
-//     : // biome-ignore lint/nursery/noNestedTernary: <explanation>
-//       data instanceof Uint8Array
-//       ? Array.from(data)
-//       : Array.from(hexToBytes(data));
-//   return `[${arr.join(', ')}]`;
-// };
+const rightPad = (
+  data: number[] | `0x${string}` | Uint8Array,
+  finalLength: number
+) => {
+  const arr = Array.isArray(data)
+    ? data
+    : // biome-ignore lint/nursery/noNestedTernary: <explanation>
+      data instanceof Uint8Array
+      ? Array.from(data)
+      : Array.from(hexToBytes(data));
+  const zeroToAdd = finalLength - arr.length;
+  return [...arr, ...new Array<number>(zeroToAdd).fill(0)];
+};
 
-// const leftPad = (
-//   data: number[] | `0x${string}` | Uint8Array,
-//   finalLength: number
-// ) => {
-//   const arr = Array.isArray(data)
-//     ? data
-//     : // biome-ignore lint/nursery/noNestedTernary: <explanation>
-//       data instanceof Uint8Array
-//       ? Array.from(data)
-//       : Array.from(hexToBytes(data));
-//   const zeroToAdd = finalLength - arr.length;
-//   return [...new Array<number>(zeroToAdd).fill(0), ...arr];
-// };
+const node = namehash('envoy1084.eth');
 
-// const rightPad = (
-//   data: number[] | `0x${string}` | Uint8Array,
-//   finalLength: number
-// ) => {
-//   const arr = Array.isArray(data)
-//     ? data
-//     : // biome-ignore lint/nursery/noNestedTernary: <explanation>
-//       data instanceof Uint8Array
-//       ? Array.from(data)
-//       : Array.from(hexToBytes(data));
-//   const zeroToAdd = finalLength - arr.length;
-//   return [...arr, ...new Array<number>(zeroToAdd).fill(0)];
-// };
+// mapping(uint64 => mapping(bytes32 => mapping(uint256 => bytes))) versionable_addresses;
 
-// const node = namehash('envoy1084.eth');
+// version => node => coinType => val
+// uint64 => bytes32 => uint256 => bytes
 
-// // mapping(uint64 => mapping(bytes32 => mapping(uint256 => bytes))) versionable_addresses;
+// inner => version, slot
 
-// // version => node => coinType => val
-// // uint64 => bytes32 => uint256 => bytes
+// Main function
+function computeVersionableAddressSlot(
+  version: bigint,
+  node: `0x${string}`,
+  coinType = 60n,
+  slot = 2n
+): `0x${string}` {
+  const inner = keccak256(
+    encodeAbiParameters(
+      [
+        {
+          name: 'version',
+          type: 'uint64',
+        },
+        {
+          name: 'slot',
+          type: 'uint256',
+        },
+      ],
+      [version, slot]
+    )
+  );
 
-// // inner => version, slot
+  const mid = keccak256(
+    encodeAbiParameters(
+      [
+        {
+          name: 'node',
+          type: 'bytes32',
+        },
+        {
+          name: 'inner',
+          type: 'bytes32',
+        },
+      ],
+      [node, inner]
+    )
+  );
 
-// // Main function
-// function computeVersionableAddressSlot(
-//   version: bigint,
-//   node: `0x${string}`,
-//   coinType = 60n,
-//   slot = 2n
-// ): `0x${string}` {
-//   const inner = keccak256(
-//     encodeAbiParameters(
-//       [
-//         {
-//           name: 'version',
-//           type: 'uint64',
-//         },
-//         {
-//           name: 'slot',
-//           type: 'uint256',
-//         },
-//       ],
-//       [version, slot]
-//     )
-//   );
+  const finalSlot = keccak256(
+    encodeAbiParameters(
+      [
+        {
+          name: 'coinType',
+          type: 'uint256',
+        },
+        {
+          name: 'mid',
+          type: 'bytes32',
+        },
+      ],
+      [coinType, mid]
+    )
+  );
 
-//   const mid = keccak256(
-//     encodeAbiParameters(
-//       [
-//         {
-//           name: 'node',
-//           type: 'bytes32',
-//         },
-//         {
-//           name: 'inner',
-//           type: 'bytes32',
-//         },
-//       ],
-//       [node, inner]
-//     )
-//   );
+  return finalSlot;
+}
 
-//   const finalSlot = keccak256(
-//     encodeAbiParameters(
-//       [
-//         {
-//           name: 'coinType',
-//           type: 'uint256',
-//         },
-//         {
-//           name: 'mid',
-//           type: 'bytes32',
-//         },
-//       ],
-//       [coinType, mid]
-//     )
-//   );
+const slot = computeVersionableAddressSlot(0n, node);
 
-//   return finalSlot;
-// }
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
 
-// const slot = computeVersionableAddressSlot(0n, node);
+const block = await publicClient.getBlock({
+  blockNumber: hexToBigInt('0xc5d0a0'),
+});
 
-// export const publicClient = createPublicClient({
-//   chain: mainnet,
-//   transport: http(),
-// });
+const h: ByteArray[] = [
+  hexToBytes(block.parentHash),
+  hexToBytes(block.sha3Uncles),
+  hexToBytes(block.miner),
+  hexToBytes(block.stateRoot),
+  hexToBytes(block.transactionsRoot),
+  hexToBytes(block.receiptsRoot),
+  hexToBytes(block.logsBloom),
+  block.difficulty === 0n ? new Uint8Array(0) : toBytes(block.difficulty),
+  toBytes(block.number),
+  toBytes(block.gasLimit),
+  toBytes(block.gasUsed),
+  toBytes(block.timestamp),
+  hexToBytes(block.extraData),
+  hexToBytes(block.mixHash),
+  toBytes(block.nonce),
+  block.baseFeePerGas ? toBytes(block.baseFeePerGas) : undefined,
+  block.withdrawalsRoot ? hexToBytes(block.withdrawalsRoot) : undefined,
+  block.blobGasUsed ? toBytes(block.blobGasUsed) : undefined,
+  block.excessBlobGas ? toBytes(block.excessBlobGas) : undefined,
+  block.parentBeaconBlockRoot
+    ? hexToBytes(block.parentBeaconBlockRoot)
+    : undefined,
+].filter((x) => x !== undefined);
 
-// const block = await publicClient.getBlock();
-// // ENS Public
-// block.const;
-// address = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
+console.log(block.withdrawalsRoot);
+
+const d = {
+  number: toHex(block.number),
+  hash: parseArray(block.hash),
+  state_root: parseArray(block.stateRoot),
+  transactions_root: parseArray(block.transactionsRoot),
+  receipts_root: parseArray(block.receiptsRoot),
+  withdrawals_root: parseArray(block.withdrawalsRoot ?? '0x0'),
+};
+
+console.log(d);
+
+console.log(parseArray(toRlp(h)));
+
+// const address = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
 
 // const p = await publicClient.getProof({
 //   address,
@@ -294,24 +327,3 @@
 // //     Array.from(hexToBytes(block.stateRoot)).map((x) => new U8(x))
 // //   ),
 // // };
-
-// const data = {
-//   storage_proof: storageProofData,
-//   storage_root: new FixedSizeArray(
-//     32,
-//     Array.from(hexToBytes(p.storageHash)).map((x) => new U8(x))
-//   ),
-// };
-
-// const inputs = toJSON(data);
-// generateToml(inputs, path.join(__dirname, 'Prover.toml'));
-
-// import { fromRlp } from 'viem';
-
-// const arr = Uint8Array.from([
-//   228, 130, 17, 35, 160, 96, 193, 223, 22, 218, 38, 132, 115, 174, 230, 176, 2,
-//   202, 231, 156, 249, 16, 209, 250, 11, 200, 192, 102, 154, 250, 99, 27, 174,
-//   208, 235, 111, 82,
-// ]);
-
-// console.log(fromRlp(arr, 'bytes'));
