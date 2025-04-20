@@ -1,3 +1,8 @@
 [workspace]
-members = ["lib", "examples/verify_account", "examples/verify_storage"]
+members = [
+    "lib",
+    "examples/verify_account",
+    "examples/verify_storage",
+    "examples/verify_header",
+]
 default-member = "lib"
