@@ -10,6 +10,5 @@ pub global BYTES32_LENGTH: u32 = 32;
 ///
 /// This type is used to represent:
 /// - Keccak-256 hashes (32 bytes)
-/// - Ethereum addresses (20 bytes, padded to 32 bytes)
 /// - Fixed-size cryptographic data
 pub type Bytes32 = [u8; BYTES32_LENGTH];
