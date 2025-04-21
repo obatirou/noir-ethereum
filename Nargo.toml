@@ -4,5 +4,6 @@ members = [
     "examples/verify_account",
     "examples/verify_storage",
     "examples/verify_header",
+    "examples/verify_transaction",
 ]
 default-member = "lib"

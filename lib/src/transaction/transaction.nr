@@ -1,15 +1,13 @@
 use crate::{
     helpers::bytes::right_pad,
-    mpt::{proof::ProofInput, verify::verify_merkle_proof},
+    mpt::verify::verify_merkle_proof,
     types::{address::Address, bytes32::Bytes32, fragment::Fragment, hash::Hash},
 };
 
-use super::constants::{
-    MAX_DEPTH_NO_LEAF, MAX_ENCODED_TRANSACTION_LENGTH, MAX_PREFIXED_KEY_NIBBLE_LENGTH,
-};
 use super::helpers::{
     assert_transaction_index_equals, assert_tx_rlp_equals, split_into_tx_type_and_rlp,
 };
+use super::types::TransactionProof;
 use super::types::TransactionType;
 
 pub struct LegacyTransaction<let MaxDataLen: u32> {
@@ -422,6 +420,31 @@ impl<let MaxDataLen: u32, let MaxAccessListLen: u32> Eq for EIP4844Transaction<M
     }
 }
 
+pub struct AuthorizationEntry {
+    chain_id: u64,
+    address: Address,
+    nonce: u64,
+    v: u8,
+    r: Bytes32,
+    s: Bytes32,
+}
+
+pub struct EIP7702Transaction<let MaxDataLen: u32, let MaxAccessListLen: u32, let MaxAuthorizationListLen: u32> {
+    chain_id: u64,
+    nonce: u64,
+    max_priority_fee_per_gas: u64,
+    max_fee_per_gas: u64,
+    gas_limit: u64,
+    to: Option<Address>,
+    value: U128,
+    data: BoundedVec<u8, MaxDataLen>,
+    access_lists: BoundedVec<u8, MaxAccessListLen>,
+    authorization_lists: BoundedVec<AuthorizationEntry, MaxAuthorizationListLen>,
+    v: u8,
+    r: Bytes32,
+    s: Bytes32,
+}
+
 pub struct TransactionPartial<let MaxDataLen: u32> {
     nonce: u64,
     gas_limit: u64,
@@ -609,22 +632,22 @@ pub fn assert_transaction_equals<let MaxDataLen: u32, let MaxEncodedDataLen: u32
     assert_tx_rlp_equals(tx_rlp, tx_type, tx);
 }
 
-pub fn verify_transaction<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32>(
-    tx_idx: u64,
-    tx_type: TransactionType,
-    tx: TransactionPartial<MaxDataLen>,
-    tx_proof_input: ProofInput<MAX_PREFIXED_KEY_NIBBLE_LENGTH, MAX_ENCODED_TRANSACTION_LENGTH, MAX_DEPTH_NO_LEAF, MaxLeafLen>,
-    tx_root: Hash,
+pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32>(
+    transaction_index: u64,
+    transaction_type: TransactionType,
+    transaction: TransactionPartial<MaxDataLen>,
+    transaction_proof: TransactionProof<MaxLeafLen>,
+    transaction_root: Hash,
 ) {
-    let key = Fragment::from_vec(right_pad(tx_proof_input.key()));
-    assert_transaction_index_equals(key, tx_idx);
+    let key = Fragment::from_vec(right_pad(transaction_proof.key()));
+    assert_transaction_index_equals(key, transaction_index);
 
-    let value = right_pad(tx_proof_input.value()).storage();
-    assert_transaction_equals(tx_type, Fragment::from_array(value), tx);
+    let value = right_pad(transaction_proof.value()).storage();
+    assert_transaction_equals(transaction_type, Fragment::from_array(value), transaction);
     verify_merkle_proof(
-        tx_proof_input.key(),
-        tx_proof_input.value(),
-        tx_root,
-        tx_proof_input.proof(),
+        transaction_proof.key(),
+        transaction_proof.value(),
+        transaction_root,
+        transaction_proof.proof(),
     )
 }

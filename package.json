@@ -58,8 +58,8 @@
     "viem": "^2.26.4"
   },
   "dependencies": {
+    "@ethereumjs/trie": "^6.2.1",
     "@noir-lang/noir_js": "^1.0.0-beta.3",
-    "@zkpersona/noir-helpers": "^0.2.1",
-    "@ethereumjs/trie": "^6.2.1"
+    "@zkpersona/noir-helpers": "^0.2.1"
   }
 }
