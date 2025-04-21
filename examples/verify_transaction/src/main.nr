@@ -1,3 +1,4 @@
+use ethereum::transaction::constants::MAX_ENCODED_TRANSACTION_LENGTH;
 use ethereum::transaction::{TransactionPartial, verify_transaction_proof};
 use ethereum::transaction::types::{TransactionProof, TransactionType};
 use ethereum::types::hash::Hash;
@@ -9,7 +10,7 @@ fn main(
     transaction_index: u64,
     transaction_type: TransactionType,
     transaction: TransactionPartial<MAX_DATA_LENGTH>,
-    transaction_proof: TransactionProof<MAX_LEAF_LENGTH>,
+    transaction_proof: TransactionProof<MAX_LEAF_LENGTH, MAX_ENCODED_TRANSACTION_LENGTH>,
     transaction_root: Hash,
 ) {
     verify_transaction_proof(

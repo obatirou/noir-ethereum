@@ -632,11 +632,11 @@ pub fn assert_transaction_equals<let MaxDataLen: u32, let MaxEncodedDataLen: u32
     assert_tx_rlp_equals(tx_rlp, tx_type, tx);
 }
 
-pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32>(
+pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32, let MaxEncodedTxLen: u32>(
     transaction_index: u64,
     transaction_type: TransactionType,
     transaction: TransactionPartial<MaxDataLen>,
-    transaction_proof: TransactionProof<MaxLeafLen>,
+    transaction_proof: TransactionProof<MaxLeafLen, MaxEncodedTxLen>,
     transaction_root: Hash,
 ) {
     let key = Fragment::from_vec(right_pad(transaction_proof.key()));
@@ -650,4 +650,76 @@ pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32,
         transaction_root,
         transaction_proof.proof(),
     )
+}
+
+mod test_legacy_transaction {
+    use crate::fixtures::transaction::legacy::{
+        transaction, transaction_index, transaction_proof, transaction_root, transaction_type,
+    };
+    use super::verify_transaction_proof;
+
+    #[test]
+    fn test_legacy_transaction() {
+        verify_transaction_proof(
+            transaction_index,
+            transaction_type,
+            transaction,
+            transaction_proof,
+            transaction_root,
+        )
+    }
+}
+
+mod test_eip1559_transaction {
+    use crate::fixtures::transaction::eip1559::{
+        transaction, transaction_index, transaction_proof, transaction_root, transaction_type,
+    };
+    use super::verify_transaction_proof;
+
+    #[test]
+    fn test_eip1559_transaction() {
+        verify_transaction_proof(
+            transaction_index,
+            transaction_type,
+            transaction,
+            transaction_proof,
+            transaction_root,
+        )
+    }
+}
+
+mod test_eip4844_transaction {
+    use crate::fixtures::transaction::eip4844::{
+        transaction, transaction_index, transaction_proof, transaction_root, transaction_type,
+    };
+    use super::verify_transaction_proof;
+
+    #[test]
+    fn test_eip4844_transaction() {
+        verify_transaction_proof(
+            transaction_index,
+            transaction_type,
+            transaction,
+            transaction_proof,
+            transaction_root,
+        )
+    }
+}
+
+mod test_eip7702_transaction {
+    use crate::fixtures::transaction::eip7702::{
+        transaction, transaction_index, transaction_proof, transaction_root, transaction_type,
+    };
+    use super::verify_transaction_proof;
+
+    #[test]
+    fn test_eip7702_transaction() {
+        verify_transaction_proof(
+            transaction_index,
+            transaction_type,
+            transaction,
+            transaction_proof,
+            transaction_root,
+        )
+    }
 }

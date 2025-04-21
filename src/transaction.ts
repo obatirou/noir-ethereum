@@ -21,6 +21,7 @@ import {
 export type GetTransactionProofOpts = GetTransactionParameters & {
   maxLeafLength?: number;
   maxDataLength?: number;
+  maxEncodedTransactionLength?: number;
 };
 
 export const getTransactionProof = async <T extends PublicClient>(
@@ -30,6 +31,7 @@ export const getTransactionProof = async <T extends PublicClient>(
   const {
     maxLeafLength = 256,
     maxDataLength = 256,
+    maxEncodedTransactionLength = 525,
     ...getTransactionOpts
   } = opts;
 
@@ -38,6 +40,16 @@ export const getTransactionProof = async <T extends PublicClient>(
 
   const txKey = encodeTransactionIndex(tx.transactionIndex ?? 0);
   const txData = parseByteArray(tx.input);
+  const encodedTx = serializeTransaction(tx);
+
+  console.log('TX Data Length: ', txData.length);
+  console.log('Encoded TX Length: ', encodedTx.length);
+
+  if (maxEncodedTransactionLength < encodedTx.length) {
+    throw new Error(
+      'Encoded Transaction length exceeds max encoded transaction length'
+    );
+  }
 
   if (maxDataLength < txData.length) {
     throw new Error('Transaction data length exceeds max data length');
@@ -67,6 +79,8 @@ export const getTransactionProof = async <T extends PublicClient>(
   const transactionProof = await transactionsTrie.createProof(txKey);
   const leafNode = transactionProof.at(-1) ?? '0x0';
   const nodes = transactionProof.slice(0, -1);
+
+  console.log('Leaf Length: ', leafNode.length);
 
   if (maxLeafLength < leafNode.length) {
     throw new Error('Leaf node length exceeds max leaf length');
@@ -103,8 +117,8 @@ export const getTransactionProof = async <T extends PublicClient>(
     leftPad(txKey, 8).map((x) => new U8(x))
   );
   const value = new FixedSizeArray(
-    525,
-    leftPad(serializeTransaction(tx), 525).map((x) => new U8(x))
+    maxEncodedTransactionLength,
+    leftPad(encodedTx, maxEncodedTransactionLength).map((x) => new U8(x))
   );
 
   const proofInput = {
