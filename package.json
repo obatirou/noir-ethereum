@@ -47,6 +47,7 @@
     "@commitlint/config-conventional": "^19.8.0",
     "@noir-lang/noir_codegen": "^1.0.0-beta.3",
     "@types/node": "^22",
+    "benny": "^3.7.1",
     "dotenv": "^16.4.7",
     "klarity": "^0.0.3",
     "lefthook": "^1.11.8",
