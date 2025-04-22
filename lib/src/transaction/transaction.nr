@@ -632,11 +632,11 @@ pub fn assert_transaction_equals<let MaxDataLen: u32, let MaxEncodedDataLen: u32
     assert_tx_rlp_equals(tx_rlp, tx_type, tx);
 }
 
-pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32, let MaxEncodedTxLen: u32>(
+pub fn verify_transaction_proof<let MaxDataLen: u32, let MaxEncodedDataLen: u32, let MaxLeafLen: u32, let MaxEncodedTxLen: u32, let MaxDepthNoLeaf: u32>(
     transaction_index: u64,
     transaction_type: TransactionType,
     transaction: TransactionPartial<MaxDataLen>,
-    transaction_proof: TransactionProof<MaxLeafLen, MaxEncodedTxLen>,
+    transaction_proof: TransactionProof<MaxLeafLen, MaxEncodedTxLen, MaxDepthNoLeaf>,
     transaction_root: Hash,
 ) {
     let key = Fragment::from_vec(right_pad(transaction_proof.key()));

@@ -1,5 +1,5 @@
 use crate::mpt::proof::ProofInput;
-use super::constants::{MAX_DEPTH_NO_LEAF, MAX_PREFIXED_KEY_NIBBLE_LENGTH};
+use super::constants::MAX_PREFIXED_KEY_NIBBLE_LENGTH;
 
 /// The type of a transaction.
 ///
@@ -10,4 +10,4 @@ use super::constants::{MAX_DEPTH_NO_LEAF, MAX_PREFIXED_KEY_NIBBLE_LENGTH};
 /// 4: EIP-7702 transaction
 pub type TransactionType = u8;
 
-pub type TransactionProof<let MaxLeafLen: u32, let MaxEncodedTxLen: u32> = ProofInput<MAX_PREFIXED_KEY_NIBBLE_LENGTH, MaxEncodedTxLen, MAX_DEPTH_NO_LEAF, MaxLeafLen>;
+pub type TransactionProof<let MaxLeafLen: u32, let MaxEncodedTxLen: u32, let MaxDepthNoLeaf: u32> = ProofInput<MAX_PREFIXED_KEY_NIBBLE_LENGTH, MaxEncodedTxLen, MaxDepthNoLeaf, MaxLeafLen>;

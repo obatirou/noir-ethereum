@@ -4,11 +4,6 @@
 //! in the Merkle Patricia Trie (MPT). The AccountProof type is a specialized version
 //! of ProofInput that contains all necessary data to verify an account's existence
 //! and state in the Ethereum state trie.
-//!
-//! The proof includes:
-//! - The path from root to the account node
-//! - The account's state data
-//! - Verification metadata
 
 use crate::mpt::proof::ProofInput;
 

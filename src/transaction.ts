@@ -22,6 +22,7 @@ export type GetTransactionProofOpts = GetTransactionParameters & {
   maxLeafLength?: number;
   maxDataLength?: number;
   maxEncodedTransactionLength?: number;
+  maxDepthNoLeaf?: number;
 };
 
 export const getTransactionProof = async <T extends PublicClient>(
@@ -32,6 +33,7 @@ export const getTransactionProof = async <T extends PublicClient>(
     maxLeafLength = 256,
     maxDataLength = 256,
     maxEncodedTransactionLength = 525,
+    maxDepthNoLeaf = 4,
     ...getTransactionOpts
   } = opts;
 
@@ -41,9 +43,6 @@ export const getTransactionProof = async <T extends PublicClient>(
   const txKey = encodeTransactionIndex(tx.transactionIndex ?? 0);
   const txData = parseByteArray(tx.input);
   const encodedTx = serializeTransaction(tx);
-
-  console.log('TX Data Length: ', txData.length);
-  console.log('Encoded TX Length: ', encodedTx.length);
 
   if (maxEncodedTransactionLength < encodedTx.length) {
     throw new Error(
@@ -80,8 +79,6 @@ export const getTransactionProof = async <T extends PublicClient>(
   const leafNode = transactionProof.at(-1) ?? '0x0';
   const nodes = transactionProof.slice(0, -1);
 
-  console.log('Leaf Length: ', leafNode.length);
-
   if (maxLeafLength < leafNode.length) {
     throw new Error('Leaf node length exceeds max leaf length');
   }
@@ -91,13 +88,11 @@ export const getTransactionProof = async <T extends PublicClient>(
     return new FixedSizeArray(532, items);
   });
 
-  if (nodesData.length > 6) {
-    throw new Error(
-      'Transaction Proof can have at most 6 nodes excluding the leaf node'
-    );
+  if (nodesData.length > maxDepthNoLeaf) {
+    throw new Error('Transaction Proof length exceeds Max Depth provided');
   }
 
-  while (nodesData.length !== 6) {
+  while (nodesData.length !== maxDepthNoLeaf) {
     nodesData.push(new FixedSizeArray(532, new Array(532).fill(new U8(0))));
   }
 

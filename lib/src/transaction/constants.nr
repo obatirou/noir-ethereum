@@ -13,5 +13,5 @@ pub global TRANSACTION_TYPE_FIELD_LAYOUT: [TransactionPartialFieldLayout; 5] = [
 pub global MAX_ENCODED_TRANSACTION_LENGTH: u32 = 525;
 pub global MAX_TRANSACTION_RLP_LENGTH: u32 = MAX_ENCODED_TRANSACTION_LENGTH - 1;
 pub global MAX_KEY_LENGTH: u32 = 3;
-pub global MAX_DEPTH_NO_LEAF: u32 = 6;
+pub global MAX_DEPTH_NO_LEAF: u32 = 6; // Could change currently with max of 300tx per block depth ranges from 2-4 excluding leaf
 pub global MAX_PREFIXED_KEY_NIBBLE_LENGTH: u32 = 8; // (MAX_KEY_LENGTH + 1) * 2
