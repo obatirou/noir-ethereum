@@ -1,6 +1,5 @@
 use crate::transaction::{
-    constants::{MAX_ENCODED_TRANSACTION_LENGTH, MAX_PREFIXED_KEY_NIBBLE_LENGTH},
-    transaction::TransactionPartial,
+    constants::MAX_PREFIXED_KEY_NIBBLE_LENGTH, transaction::TransactionPartial,
     types::TransactionProof,
 };
 
@@ -39,7 +38,7 @@ pub global transaction: TransactionPartial<MAX_DATA_LENGTH> = TransactionPartial
 
 global key: Key<MAX_PREFIXED_KEY_NIBBLE_LENGTH> = [0, 0, 0, 0, 0, 0, 129, 137];
 
-global value: Value<MAX_ENCODED_TRANSACTION_LENGTH> = [
+global value: Value<525> = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -178,5 +177,5 @@ global proof: Proof<4, 128> = Proof::new(
     5,
 );
 
-pub global transaction_proof: TransactionProof<MAX_LEAF_LENGTH, MAX_ENCODED_TRANSACTION_LENGTH, 4> =
+pub global transaction_proof: TransactionProof<MAX_LEAF_LENGTH, 525, 4> =
     ProofInput::new(key, value, proof);
