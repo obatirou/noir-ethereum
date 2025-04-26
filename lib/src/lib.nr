@@ -7,6 +7,7 @@ pub mod storage;
 pub mod header;
 pub mod chain;
 pub mod transaction;
+pub mod receipt;
 
 pub mod helpers;
 
