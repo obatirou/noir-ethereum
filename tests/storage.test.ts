@@ -11,7 +11,7 @@ import { mainnet } from 'viem/chains';
 import { getStorageProof } from '../src';
 import { getENSNameStorageSlot } from './helpers';
 
-describe.skip('Storage Proof Verification', () => {
+describe('Storage Proof Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 

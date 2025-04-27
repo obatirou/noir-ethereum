@@ -10,7 +10,7 @@ import { http, type PublicClient, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { getAccountProof } from '../src';
 
-describe.skip('Account Proof Verification', () => {
+describe('Account Proof Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 

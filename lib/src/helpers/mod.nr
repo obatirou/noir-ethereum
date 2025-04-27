@@ -21,3 +21,4 @@ pub fn if_else(condition: bool, x: Field, y: Field) -> Field {
 pub mod bytes;
 pub mod iterator;
 pub mod arrays;
+pub mod bounded_vec;

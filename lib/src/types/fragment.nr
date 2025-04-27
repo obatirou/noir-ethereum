@@ -129,6 +129,24 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         *self
     }
 
+    /// Creates a fragment from an array with a specified length.
+    ///
+    /// # Arguments
+    ///
+    /// * `length` - The length of the fragment
+    /// * `data` - The array to create a fragment from
+    ///
+    /// # Panics
+    ///
+    /// Panics if `length` exceeds the length of the data array
+    pub fn new_with_length<let MaxDataLen: u32>(
+        length: u64,
+        data: [T; MaxDataLen],
+    ) -> Fragment<T, MaxDataLen> {
+        assert(length <= data.len() as u64, "Fragment length exceeds data length");
+        Fragment { offset: 0, length, data }
+    }
+
     /// Returns the length of the fragment.
     pub fn len(self) -> u64 {
         self.length
@@ -219,6 +237,18 @@ impl<T, let MaxLen: u32> Fragment<T, MaxLen> {
         memcpy_up_to_length(&mut new_data, self.data, self.offset, self.length);
 
         Fragment { offset: 0, length: self.length, data: new_data }
+    }
+
+    pub fn to_array<let NewMaxLen: u32>(self) -> [T; NewMaxLen] {
+        self.focus().data
+    }
+
+    pub fn to_bounded_vec<let N: u32>(self) -> BoundedVec<T, N> {
+        assert(self.length <= N as u64, "Fragment length exceeds BoundedVec max length");
+        let bounded_vec: &mut BoundedVec<T, N> = &mut BoundedVec::new();
+        self.each(|x, _| bounded_vec.push(x));
+
+        *bounded_vec
     }
 
     /// Returns the end position of the fragment in the original data array.
