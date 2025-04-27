@@ -10,7 +10,7 @@ import { http, type PublicClient, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { getReceiptProof } from '../src';
 
-describe('Transaction Proof Verification', () => {
+describe('Receipt Proof Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 
@@ -26,7 +26,7 @@ describe('Transaction Proof Verification', () => {
     });
   });
 
-  it('should prove transaction proof', async () => {
+  it('should prove receipt proof', async () => {
     const inputs = await getReceiptProof(publicClient, {
       hash: '0x9a3126c92d87ef66454695b2fb687659fab14a7fb4968a7bd6551036bd9f3ec1',
       maxDepthNoLeaf: 4,

@@ -10,7 +10,7 @@ import { http, type PublicClient, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { getTransactionProof } from '../src';
 
-describe.skip('Transaction Proof Verification', () => {
+describe('Transaction Proof Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 

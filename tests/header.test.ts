@@ -10,7 +10,7 @@ import { http, type PublicClient, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { getBlockHeader } from '../src';
 
-describe.skip('Header Verification', () => {
+describe('Header Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 
@@ -26,7 +26,7 @@ describe.skip('Header Verification', () => {
     });
   });
 
-  it('should prove account proof.', async () => {
+  it('should verify block header.', async () => {
     const inputs = await getBlockHeader(publicClient, {});
     const parsedInputs = toCircuitInputs(inputs);
     console.time('prove-header');
