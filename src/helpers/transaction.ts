@@ -328,8 +328,6 @@ export function serializeAuthorizationList(
   return serializedAuthorizationList;
 }
 
-export const encodeTransactionIndex = (transactionIndex: number) => {
-  return transactionIndex === 0
-    ? hexToBytes('0x80')
-    : toRlp(toBytes(transactionIndex), 'bytes');
+export const encodeIndex = (index: number) => {
+  return index === 0 ? hexToBytes('0x80') : toRlp(toBytes(index), 'bytes');
 };

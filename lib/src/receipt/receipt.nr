@@ -41,14 +41,14 @@ impl<let MaxLogDataLen: u32, let MaxTopicsCount: u32> Eq for Log<MaxLogDataLen, 
     }
 }
 
-pub struct TransactionReceiptPartial<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32> {
+pub struct TransactionReceiptPartial {
     state_root: Option<Hash>,
     status: Option<u1>,
     cumulative_gas_used: u64,
     logs_bloom: LogsBloom,
 }
 
-impl<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32> TransactionReceiptPartial<MaxLogsLen, MaxLogDataLen, MaxTopicsCount> {
+impl TransactionReceiptPartial {
     pub fn new(
         state_root: Option<Hash>,
         status: Option<u1>,
@@ -75,7 +75,7 @@ impl<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32> Trans
     }
 }
 
-impl<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32> Eq for TransactionReceiptPartial<MaxLogsLen, MaxLogDataLen, MaxTopicsCount> {
+impl Eq for TransactionReceiptPartial {
     fn eq(self, other: Self) -> bool {
         (self.state_root == other.state_root)
             & (self.status == other.status)
@@ -84,11 +84,11 @@ impl<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32> Eq fo
     }
 }
 
-pub fn verify_receipt_proof<let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32, let MaxEncodedLen: u32, let MaxDepthNoLeaf: u32, let MaxLeafLen: u32>(
+pub fn verify_receipt_proof<let MaxEncodedLen: u32, let MaxDepthNoLeaf: u32, let MaxLeafLen: u32>(
     block_number: u64,
     transaction_index: u64,
     transaction_type: TransactionType,
-    receipt: TransactionReceiptPartial<MaxLogsLen, MaxLogDataLen, MaxTopicsCount>,
+    receipt: TransactionReceiptPartial,
     receipt_proof: ReceiptProof<MaxEncodedLen, MaxDepthNoLeaf, MaxLeafLen>,
     receipt_root: Hash,
 ) -> RlpList<RECEIPT_FIELDS_COUNT> {

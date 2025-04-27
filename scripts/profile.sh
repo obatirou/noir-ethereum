@@ -1,7 +1,7 @@
 
  #!/bin/bash
  
- packages=("verify_account" "verify_storage" "verify_header" "verify_transaction")
+ packages=("verify_account" "verify_storage" "verify_header" "verify_transaction" "verify_receipt")
  
  TIME_FORMAT='
  Elapsed Time: %E

@@ -2,15 +2,15 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { Prover, toCircuitInputs } from '@zkpersona/noir-helpers';
 
-import circuit from '../target/verify_transaction.json' assert { type: 'json' };
+import circuit from '../target/verify_receipt.json' assert { type: 'json' };
 
 import os from 'node:os';
 import type { CompiledCircuit } from '@noir-lang/noir_js';
 import { http, type PublicClient, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
-import { getTransactionProof } from '../src';
+import { getReceiptProof } from '../src';
 
-describe.skip('Transaction Proof Verification', () => {
+describe('Transaction Proof Verification', () => {
   let prover: Prover;
   let publicClient: PublicClient;
 
@@ -27,18 +27,21 @@ describe.skip('Transaction Proof Verification', () => {
   });
 
   it('should prove transaction proof', async () => {
-    const inputs = await getTransactionProof(publicClient, {
+    const inputs = await getReceiptProof(publicClient, {
       hash: '0x9a3126c92d87ef66454695b2fb687659fab14a7fb4968a7bd6551036bd9f3ec1',
+      maxDepthNoLeaf: 4,
+      maxEncodedReceiptLength: 512,
+      maxLeafLength: 512,
     });
 
     const parsedInputs = toCircuitInputs(inputs);
-    console.time('prove-transaction');
+    console.time('prove-receipt');
     const proof = await prover.fullProve(parsedInputs, { type: 'honk' });
-    console.timeEnd('prove-transaction');
+    console.timeEnd('prove-receipt');
 
-    console.time('verify-transaction');
+    console.time('verify-receipt');
     const isVerified = await prover.verify(proof, { type: 'honk' });
-    console.timeEnd('verify-transaction');
+    console.timeEnd('verify-receipt');
 
     expect(isVerified).toBe(true);
   });

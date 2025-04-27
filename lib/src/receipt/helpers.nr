@@ -17,10 +17,10 @@ pub fn is_pre_byzantium(block_number: u64) -> bool {
     block_number < BYZANTIUM_BLOCK_NUMBER as u64
 }
 
-pub fn assert_receipt_rlp_equals<let MaxEncodedLen: u32, let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32>(
+pub fn assert_receipt_rlp_equals<let MaxEncodedLen: u32>(
     is_pre_byzantium: bool,
     receipt_rlp: Fragment<u8, MaxEncodedLen>,
-    receipt: TransactionReceiptPartial<MaxLogsLen, MaxLogDataLen, MaxTopicsCount>,
+    receipt: TransactionReceiptPartial,
 ) -> RlpList<RECEIPT_FIELDS_COUNT> {
     let receipt_rlp_list: RlpList<RECEIPT_FIELDS_COUNT> = decode_list(receipt_rlp);
     assert(
@@ -57,11 +57,11 @@ pub fn assert_receipt_rlp_equals<let MaxEncodedLen: u32, let MaxLogsLen: u32, le
     receipt_rlp_list
 }
 
-pub fn assert_receipt_equals<let MaxEncodedLen: u32, let MaxLogsLen: u32, let MaxLogDataLen: u32, let MaxTopicsCount: u32>(
+pub fn assert_receipt_equals<let MaxEncodedLen: u32>(
     block_number: u64,
     tx_type: TransactionType,
     encoded_receipt: Fragment<u8, MaxEncodedLen>,
-    receipt: TransactionReceiptPartial<MaxLogsLen, MaxLogDataLen, MaxTopicsCount>,
+    receipt: TransactionReceiptPartial,
 ) -> RlpList<RECEIPT_FIELDS_COUNT> {
     let is_legacy = tx_type == 0;
     let (tx_type, receipt_rlp) = split_into_tx_type_and_rlp(is_legacy, encoded_receipt);

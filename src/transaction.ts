@@ -8,7 +8,7 @@ import {
 } from '@zkpersona/noir-helpers';
 import { type GetTransactionParameters, type PublicClient, toHex } from 'viem';
 import {
-  encodeTransactionIndex,
+  encodeIndex,
   leftPad,
   parseAddress,
   parseByteArray,
@@ -40,7 +40,7 @@ export const getTransactionProof = async <T extends PublicClient>(
   const tx = await publicClient.getTransaction(getTransactionOpts);
   if (!tx.blockNumber) throw new Error('Transaction not found');
 
-  const txKey = encodeTransactionIndex(tx.transactionIndex ?? 0);
+  const txKey = encodeIndex(tx.transactionIndex ?? 0);
   const txData = parseByteArray(tx.input);
   const encodedTx = serializeTransaction(tx);
 
@@ -64,7 +64,7 @@ export const getTransactionProof = async <T extends PublicClient>(
   const transactions = structuredClone(block.transactions);
 
   for await (const [index, item] of transactions.entries()) {
-    const key = encodeTransactionIndex(index);
+    const key = encodeIndex(index);
     const value = serializeTransaction(item);
     await transactionsTrie.put(key, value);
   }
@@ -97,7 +97,7 @@ export const getTransactionProof = async <T extends PublicClient>(
   }
 
   const proof = {
-    nodes: new FixedSizeArray(6, nodesData),
+    nodes: new FixedSizeArray(maxDepthNoLeaf, nodesData),
     leaf: new FixedSizeArray(
       maxLeafLength,
       rightPad(leafNode, maxLeafLength).map((x) => new U8(x))
@@ -135,7 +135,10 @@ export const getTransactionProof = async <T extends PublicClient>(
             _is_some: new Bool(true),
             _value: parseAddress(tx.to),
           }
-        : { _is_some: new Bool(false), _value: new FixedSizeArray(0, []) },
+        : {
+            _is_some: new Bool(false),
+            _value: new FixedSizeArray(20, new Array(20).fill(new U8(0))),
+          },
       value: toU128(tx.value),
       data: new BoundedVec(maxDataLength, new U8(0), txData),
       v: new U8(tx.v),
