@@ -85,14 +85,17 @@ export const getReceiptProof = async <T extends PublicClient>(
   const receipts = structuredClone(blockReceipts);
 
   const receiptKey = encodeIndex(receipt.transactionIndex);
-  const requestedReceipt = receipts.at(receipt.transactionIndex);
+  const requestedReceipt = receipts[receipt.transactionIndex];
+
   if (!requestedReceipt) {
     throw new Error('Requested Receipt not found.');
   }
   const receiptValue = serializeReceipt(requestedReceipt);
 
   if (receiptValue.length > maxEncodedReceiptLength) {
-    throw new Error('Receipt value length exceeds max encoded receipt length');
+    throw new Error(
+      `Receipt value length (${receiptValue.length}) exceeds max encoded receipt length (${maxEncodedReceiptLength})`
+    );
   }
 
   for await (const item of receipts) {
@@ -110,7 +113,9 @@ export const getReceiptProof = async <T extends PublicClient>(
   const nodes = receiptProof.slice(0, -1);
 
   if (maxLeafLength < leafNode.length) {
-    throw new Error('Leaf node length exceeds max leaf length');
+    throw new Error(
+      `Leaf node length (${leafNode.length}) exceeds max leaf length (${maxLeafLength})`
+    );
   }
 
   const nodesData = nodes.map((val) => {
@@ -119,7 +124,9 @@ export const getReceiptProof = async <T extends PublicClient>(
   });
 
   if (nodesData.length > maxDepthNoLeaf) {
-    throw new Error('Receipt Proof depth exceeds Max Depth provided');
+    throw new Error(
+      `Receipt Proof depth (${nodesData.length}) exceeds Max Depth provided (${maxDepthNoLeaf})`
+    );
   }
 
   while (nodesData.length !== maxDepthNoLeaf) {

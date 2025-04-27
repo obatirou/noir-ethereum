@@ -35,7 +35,7 @@ pub fn assert_receipt_rlp_equals<let MaxEncodedLen: u32>(
             receipt.state_root().expect(f"State root is missing"),
         );
     } else {
-        receipt_rlp_list.get(STATUS_INDEX).assert_eq_u1(
+        receipt_rlp_list.get(STATUS_INDEX).assert_eq_u8(
             "Status",
             receipt_rlp,
             receipt.status().expect(f"Status is missing"),

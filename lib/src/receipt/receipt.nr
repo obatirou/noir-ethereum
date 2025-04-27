@@ -43,7 +43,7 @@ impl<let MaxLogDataLen: u32, let MaxTopicsCount: u32> Eq for Log<MaxLogDataLen, 
 
 pub struct TransactionReceiptPartial {
     state_root: Option<Hash>,
-    status: Option<u1>,
+    status: Option<u8>,
     cumulative_gas_used: u64,
     logs_bloom: LogsBloom,
 }
@@ -51,7 +51,7 @@ pub struct TransactionReceiptPartial {
 impl TransactionReceiptPartial {
     pub fn new(
         state_root: Option<Hash>,
-        status: Option<u1>,
+        status: Option<u8>,
         cumulative_gas_used: u64,
         logs_bloom: LogsBloom,
     ) -> Self {
@@ -62,7 +62,7 @@ impl TransactionReceiptPartial {
         self.state_root
     }
 
-    pub fn status(self) -> Option<u1> {
+    pub fn status(self) -> Option<u8> {
         self.status
     }
 
@@ -110,4 +110,42 @@ pub fn verify_receipt_proof<let MaxEncodedLen: u32, let MaxDepthNoLeaf: u32, let
     );
 
     rlp_list
+}
+
+mod post_byzantium_tests {
+    use crate::fixtures::receipt::post_byzantium::{
+        block_number, receipt, receipt_proof, receipt_root, transaction_index, transaction_type,
+    };
+    use super::verify_receipt_proof;
+
+    #[test]
+    fn test_verify_post_byzantium_receipt_proof() {
+        let _ = verify_receipt_proof(
+            block_number,
+            transaction_index,
+            transaction_type,
+            receipt,
+            receipt_proof,
+            receipt_root,
+        );
+    }
+}
+
+mod pre_byzantium_tests {
+    use crate::fixtures::receipt::pre_byzantium::{
+        block_number, receipt, receipt_proof, receipt_root, transaction_index, transaction_type,
+    };
+    use super::verify_receipt_proof;
+
+    #[test]
+    fn test_verify_pre_byzantium_receipt_proof() {
+        let _ = verify_receipt_proof(
+            block_number,
+            transaction_index,
+            transaction_type,
+            receipt,
+            receipt_proof,
+            receipt_root,
+        );
+    }
 }
