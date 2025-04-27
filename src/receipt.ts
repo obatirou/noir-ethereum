@@ -11,6 +11,7 @@ import {
   hexToNumber,
   toHex,
 } from 'viem';
+
 import {
   encodeIndex,
   leftPad,
@@ -38,6 +39,9 @@ export type GetReceiptProofOpts = GetTransactionReceiptParameters & {
   maxDepthNoLeaf?: number;
   maxEncodedReceiptLength?: number;
   maxLeafLength?: number;
+  getBlockReceipts?: (
+    opts: GetBlockReceiptsParameters
+  ) => Promise<TransactionReceipt<Hex, Hex, Hex, Hex>[]>;
 };
 
 export const getReceiptProof = async <T extends PublicClient>(
@@ -63,6 +67,7 @@ export const getReceiptProof = async <T extends PublicClient>(
     maxDepthNoLeaf = 4,
     maxEncodedReceiptLength = 256,
     maxLeafLength = 256,
+    getBlockReceipts,
     ...getTransactionReceiptOpts
   } = opts;
 
@@ -76,9 +81,15 @@ export const getReceiptProof = async <T extends PublicClient>(
     blockNumber: receipt.blockNumber,
   });
 
-  const blockReceipts = await extendedClient.getBlockReceipts({
-    blockNumber: block.number,
-  });
+  let blockReceipts: TransactionReceipt<Hex, Hex, Hex, Hex>[];
+
+  if (getBlockReceipts) {
+    blockReceipts = await getBlockReceipts({ blockNumber: block.number });
+  } else {
+    blockReceipts = await extendedClient.getBlockReceipts({
+      blockNumber: block.number,
+    });
+  }
 
   const receiptsTrie = new Trie();
 
