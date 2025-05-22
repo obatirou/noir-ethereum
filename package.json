@@ -27,13 +27,15 @@
   },
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
-  "files": ["dist/**", "lib/**"],
+  "files": [
+    "dist/**",
+    "lib/**"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "vitest",
     "test": "vitest run",
     "format": "pnpm biome format",
-    "prepare": "lefthook install",
     "format:write": "pnpm biome format --write",
     "release": "pnpm run build && changeset publish",
     "version-packages": "changeset version",
