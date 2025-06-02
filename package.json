@@ -40,7 +40,8 @@
     "release": "pnpm run build && changeset publish",
     "version-packages": "changeset version",
     "changeset": "changeset",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "prepare": "pnpm run build"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -65,5 +66,6 @@
     "@ethereumjs/trie": "^6.2.1",
     "@noir-lang/noir_js": "^1.0.0-beta.3",
     "@zkpersona/noir-helpers": "^0.2.1"
-  }
+  },
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }
